@@ -1,0 +1,5 @@
+https://www.codegrepper.com/code-examples/javascript/frameworks/nextjs/Could+not+resolve+dependency%3A+npm+ERR%21+peer+react%40%22%5E15.0.0+%7C%7C+%5E16.0.0+%7C%7C+%5E17.0.0%22+from+video-react%400.15.0
+
+https://www.codegrepper.com/code-examples/javascript/Could+not+resolve+dependency%3A+npm+ERR%21+peer+react%40%22%5E15.0.0+%7C%7C+%5E16.0.0+%7C%7C+%5E17.0.0%22+from+react-paystack%403.0.5
+
+https://www.codegrepper.com/code-examples/javascript/npm+ERR%21+Found%3A+react%4018.1.0+npm+ERR%21+node_modules%2Freact+npm+ERR%21+++react%40%22%5E18.1.0%22+from+the+root+project+npm+ERR%21+npm+ERR%21+Could+not+resolve+dependency%3A+npm+ERR%21+peer+react%40%22%5E16.3.3+%7C%7C+%5E17.0.0
