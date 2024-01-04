@@ -86,7 +86,7 @@ export const coluns = [
     reorder: true,
     sortable: true,
     minWidth: "225px",
-    selector: (row) => row.nome,
+    selector: (row) => (row.nome ? row.nome.slice(0, 30) : ""),
   },
   {
     name: "SETOR",

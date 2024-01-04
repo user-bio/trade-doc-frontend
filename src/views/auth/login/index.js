@@ -49,8 +49,9 @@ const Login = () => {
             .then((r) => {
               setToken(r.body.access_token);
               setData(r.body.expires_in);
-              Usuarios.getUser();
-              window.location.href = "./";
+              Usuarios.getUser(true).then(() => {
+                window.location.href = "./";
+              });
             })
             .catch((error) => {
               instance.logoutRedirect().catch((error) => {

@@ -5,7 +5,7 @@
 //     redirectUri: "https://bioseta.s3digital.com.br/login",
 //   },
 //   cache: {
-//     cacheLocation: "sessionStorage", // This configures where your cache will be stored
+//     cacheLocation: "localStorage", // This configures where your cache will be stored
 //     storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
 //   }
 // };
@@ -17,7 +17,7 @@ export const msalConfig = {
     redirectUri: "http://localhost:3000/login",
   },
   cache: {
-    cacheLocation: "sessionStorage", // This configures where your cache will be stored
+    cacheLocation: "localStorage", // This configures where your cache will be stored
     storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
   }
 };
@@ -29,7 +29,7 @@ export const msalConfig = {
 //     redirectUri: "https://tradedoc.bioseta.com.br/login",
 //   },
 //   cache: {
-//     cacheLocation: "sessionStorage", // This configures where your cache will be stored
+//     cacheLocation: "localStorage", // This configures where your cache will be stored
 //     storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
 //   }
 // };

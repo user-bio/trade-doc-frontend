@@ -174,8 +174,10 @@ const DataTablesReOrder = () => {
     let obj = [];
 
     for (let setor of setores.Setores) {
-      if (setor.Usuarios_Setores.permissoes.uploadDoc) {
-        obj.push(setor.id);
+      if (setor.Usuarios_Setores.permissoes !== null) {
+        if (setor.Usuarios_Setores.permissoes.uploadDoc) {
+          obj.push(setor.id);
+        }
       }
     }
     return obj;
@@ -277,16 +279,15 @@ const DataTablesReOrder = () => {
       token: getToken(),
     });
 
-    if(Usuarios.isAdmin()){
+    if (Usuarios.isAdmin()) {
       return retorno.body;
-    }else{
+    } else {
       const idsFiltrados = exibirTiposDocumentos();
       const itensFiltrados = retorno.body.filter((objeto) =>
         idsFiltrados.includes(objeto.Documentos_Tipo.setor_id)
       );
       return itensFiltrados;
     }
-
   }
 
   // ** Function to handle Pagination
@@ -565,7 +566,7 @@ const DataTablesReOrder = () => {
           pagination
           data={searchValue.length ? filteredData : data}
           columns={coluns}
-          className="react-dataTable"
+          className="react-dataTable padding-bottom-80"
           sortIcon={<ChevronDown size={10} />}
           // paginationComponent={CustomPagination}
           paginationDefaultPage={currentPage + 1}

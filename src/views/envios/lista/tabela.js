@@ -124,6 +124,10 @@ const DataTablesReOrder = () => {
           }
           contador++;
         }
+        console.log(filtros);
+        if(filtros === ""){
+          filtros = "?setores=vazio";
+        }
       }
       httpRequest(`envios${filtros}`, {
         method: "GET",
@@ -170,7 +174,7 @@ const DataTablesReOrder = () => {
     let obj = [];
 
     for (let setor of setores.Setores) {
-      if (setor.Usuarios_Setores.permissoes.criaEnvio) {
+      if (setor.Usuarios_Setores.permissoes !== null && setor.Usuarios_Setores.permissoes.criaEnvio) {
         obj.push(setor.id);
       }
     }

@@ -21,7 +21,7 @@ if(getToken() != null){
   object.permissoes = []
 }
 
-let position = 0
+let position = 0;
 
 // CADASTROS //
 let conditions = ["cadastro", "admin", "cliente", "empresa", "funcionario"];
@@ -32,33 +32,40 @@ if (conditions.some((i) => object.permissoes.includes(i))) {
     icon: <Copy size={20} />,
     children: [],
   });
+  position = 1;
 }
 conditions = ["cadastro", "admin", "cliente"];
 if (conditions.some((i) => object.permissoes.includes(i))) {
+  position = 0;
   obj[position].children.push({
     id: "clientes",
     title: "Clientes",
     icon: <Briefcase size={12} />,
     navLink: "/clientes",
   });
+  position = 1;
 }
 conditions = ["cadastro", "admin", "empresa"];
 if (conditions.some((i) => object.permissoes.includes(i))) {
+  position = 0;
   obj[position].children.push({
     id: "empresas",
     title: "Empresas",
     icon: <Briefcase size={20} />,
     navLink: "/empresas",
   });
+  position = 1;
 }
 conditions = ["cadastro", "admin", "funcionario"];
 if (conditions.some((i) => object.permissoes.includes(i))) {
+  position = 0;
   obj[position].children.push({
     id: "funcionarios",
     title: "Funcionários",
     icon: <Users size={20} />,
     navLink: "/funcionarios",
   });
+  position = 1;
 }
 // CADASTROS FIM //
 // ENVIOS //
@@ -83,7 +90,7 @@ if (conditions.some((i) => object.permissoes.includes(i))) {
     // navLink: "/documentos",
     children: [],
   });
-  position = position + 1
+  // position = position + 1
   obj[position].children.push({
     id: "documentos",
     title: "Documentos",

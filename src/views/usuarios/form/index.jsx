@@ -280,8 +280,9 @@ const UsuariosForm = () => {
       //   });
       // });
       let objetoPermissoes = [];
-      setores.forEach((setor) => {
-        const item = dados.Setores.find((item) => setor.id === item.id);
+      setores.forEach((setor) => { 
+        const item = dados.Setores ? dados.Setores.find((item) => setor.id === item.id) : false;
+
         objetoPermissoes.push({
           id: setor.id,
           tipo: item ? item.Usuarios_Setores.tipo : "usuario",

@@ -36,6 +36,7 @@ import isAzure from "../../../components/isAzure";
 import { getToken } from "../../../services/Auth";
 import { httpRequest } from "../../../services/Api";
 import { Blocos } from "./blocos";
+import Usuarios from "../../../services/Usuarios";
 
 const LotesForm = () => {
   const [data, setData] = useState(null);
@@ -82,13 +83,30 @@ const LotesForm = () => {
       method: "GET",
       token: getToken(),
     }).then((res) => {
+      let itensFiltrados = [];
+      if (Usuarios.isAdmin()) {
+        itensFiltrados = res.body;
+      } else {
+        const idsFiltrados = exibirTiposDocumentos();
+        itensFiltrados = res.body.filter((objeto) =>
+          idsFiltrados.includes(objeto.setor_id)
+        );
+      }
       const objTipos = [];
-      res.body.map((tipo) => {
+      itensFiltrados.map((item) => {
         objTipos.push({
-          value: tipo.id,
-          label: tipo.nome,
+          value: item.id,
+          label: item.nome + " - " + item.tipo,
         });
       });
+      setselectTipo(objTipos);
+      // const objTipos = [];
+      // res.body.map((tipo) => {
+      //   objTipos.push({
+      //     value: tipo.id,
+      //     label: tipo.nome,
+      //   });
+      // });
       setselectTipo(objTipos);
     });
   }, []);
@@ -107,7 +125,21 @@ const LotesForm = () => {
       });
       setselectEmpresas(objEmpresas);
     });
-  }, []);
+  }, []); // verifica permissoes
+  function exibirTiposDocumentos() {
+    const setores = Usuarios.getUserStorage();
+
+    let obj = [];
+
+    for (let setor of setores.Setores) {
+      if (setor.Usuarios_Setores.permissoes !== null) {
+        if (setor.Usuarios_Setores.permissoes.uploadDoc) {
+          obj.push(setor.id);
+        }
+      }
+    }
+    return obj;
+  }
 
   function carregaFuncionarios(data) {
     setValue("empresa", {

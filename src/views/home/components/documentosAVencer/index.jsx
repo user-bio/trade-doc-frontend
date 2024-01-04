@@ -14,6 +14,8 @@ import TableVencidos from "./vencidos";
 
 import { httpRequest } from "../../../../services/Api";
 import { getToken } from "../../../../services/Auth";
+import CustomBarChart from "../graficos/BarChart";
+import Usuarios from "../../../../services/Usuarios";
 
 const DocumentosVencidos = () => {
   const [activeTab, setActiveTab] = useState(null);
@@ -41,7 +43,7 @@ const DocumentosVencidos = () => {
           list_id,
         } = current;
         if (!acc[setor_id]) {
-          acc[setor_id] = { setor, documentos: [] };
+          acc[setor_id] = { setor_id, setor, documentos: [] };
         }
         acc[setor_id].documentos.push({
           documentos_tipo_id,
@@ -55,7 +57,28 @@ const DocumentosVencidos = () => {
 
       const setoresArray = Object.values(setoresObjeto);
 
-      setDados(setoresArray);
+      const newData = setoresArray.map(setor => {
+        const graficoItem = setor.documentos
+          .filter(documento => parseInt(documento.a_vencer) > 0)
+          .map(documento => ({
+            proximaData: documento.nome,
+            quantidade: parseInt(documento.a_vencer),
+          }));
+        return {
+          ...setor,
+          grafico: graficoItem,
+        };
+      });
+
+      if(Usuarios.isAdmin()){
+        setDados(newData);
+      }else{
+        const idsFiltrados = exibirTiposDocumentos();
+        const itensFiltrados = newData.filter((objeto) =>
+          idsFiltrados.includes(objeto.setor_id)
+        );
+        setDados(itensFiltrados);
+      }
 
       // Definir a primeira aba ativa com base na condição
       const firstTab = setoresArray.findIndex((item) =>
@@ -64,6 +87,19 @@ const DocumentosVencidos = () => {
       setActiveTab(firstTab >= 0 ? firstTab.toString() : "0");
     });
   }, []);
+
+  function exibirTiposDocumentos() {
+    const setores = Usuarios.getUserStorage();
+
+    let obj = [];
+
+    for (let setor of setores.Setores) {
+      if (setor.Usuarios_Setores.permissoes !== null && setor.Usuarios_Setores.permissoes.criaEnvio) {
+        obj.push(setor.id);
+      }
+    }
+    return obj;
+  }
 
   return (
     <>
@@ -107,6 +143,9 @@ const DocumentosVencidos = () => {
               <TabPane tabId={`${index}`}>
                 <Row>
                   <Col sm="12">
+                    <div style={{ width: "100%", height: "150px" }}>
+                      <CustomBarChart dataValor={item.grafico} heightCampo={150} />
+                    </div>
                     <TableVencidos documentos={documentosVencidos} />
                   </Col>
                 </Row>
