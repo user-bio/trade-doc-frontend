@@ -31,7 +31,7 @@ export const coluns = [
     reorder: true,
     sortable: true,
     minWidth: "310px",
-    selector: (row) => row.Usuario.first_name,
+    selector: (row) => (row.Usuario && row.Usuario.first_name) ? row.Usuario.first_name : "",
   },
   {
     name: "Ação",
