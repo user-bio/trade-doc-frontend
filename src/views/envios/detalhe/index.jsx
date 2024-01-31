@@ -262,7 +262,8 @@ const EnviosDetalhe = () => {
                         Reprovado
                       </Badge>
                     </div>
-                    {detalhe.aprovacao == "pendente" || detalhe.aprovacao == "reprovada" ? (
+                    {detalhe.aprovacao == "pendente" ||
+                    detalhe.aprovacao == "reprovada" ? (
                       <div>
                         <h3 className="mb-2 mt-2">Informações de pendência</h3>
                         <div
@@ -351,7 +352,13 @@ const EnviosDetalhe = () => {
                                   </Button>
                                 </div>
                               </div>
-                              <div className={`col-lg-3 ${detalhe.aprovacao == "reprovada" ? "d-none" : ""}`}>
+                              <div
+                                className={`col-lg-3 ${
+                                  detalhe.aprovacao == "reprovada"
+                                    ? "d-none"
+                                    : ""
+                                }`}
+                              >
                                 <Label className="form-label">
                                   Reprovar envio
                                 </Label>
@@ -380,6 +387,12 @@ const EnviosDetalhe = () => {
                       <div className="mb-2">
                         <label>
                           <b>Tipo envio:</b> {detalhe.tipo}
+                          {detalhe.tipo === "recorrente" && detalhe.data_final_envio !== null && (
+                            <>
+                              <br />
+                              <b>Data final:</b> {dataPTBR(detalhe.data_final_envio)}
+                            </>
+                          )}
                         </label>
                       </div>
                       <div className="mb-2">

@@ -58,6 +58,7 @@ const EnviosForm = () => {
   const defaultValues = {
     tipo: tiposOPT[0],
     dataEnvio: [],
+    dataFim: [],
     dataRecorrente: [],
     assunto: "",
   };
@@ -330,6 +331,7 @@ const EnviosForm = () => {
         });
         setValue("assunto", res.body.dados.assunto);
 
+        
         if (res.body.dados.tipo === "recorrente") {
           setValue("dia", {
             value: res.body.dados.dia,
@@ -433,12 +435,22 @@ const EnviosForm = () => {
             ? [res.body.dados.data + "T03:00:00.000Z"]
             : []
         );
+
+        setValue(
+          "dataFim",
+          res.body.dados.data_final_envio !== null
+            ? [res.body.dados.data_final_envio + "T03:00:00.000Z"]
+            : []
+        );
       });
     }, []);
   }
 
   function changeData(valor) {
     setValue(`dataEnvio`, valor);
+  }
+  function changeDataFim(valor) {
+    setValue(`dataFim`, valor);
   }
 
   const onSubmit = (data) => {
@@ -450,9 +462,10 @@ const EnviosForm = () => {
         cliente_id: data.clientes.value,
         empresa_id: data.empresa.value,
         data: data.dataEnvio.length > 0 ? data.dataEnvio[0] : null,
+        data_final_envio: data.dataFim.length > 0 ? data.dataFim[0] : null,
         dia: data.dia !== undefined ? data.dia.value : "",
         assunto: data.assunto,
-      };
+      };  
 
       objEnvio.destinos = [];
       contatos.map((contato) => {
@@ -736,6 +749,35 @@ const EnviosForm = () => {
                       )}
                     /> */}
                   </Col>
+                  <Col
+                    className={`mb-1 ${tipoSel !== "recorrente" ? "d-none" : ""}`}
+                    xl="4"
+                    md="6"
+                    sm="12"
+                  >
+                    <Label className="form-label" for="dataFim">
+                      Data de conslusão
+                    </Label>
+                    <Controller
+                      control={control}
+                      id="dataFim"
+                      name="dataFim"
+                      render={({ field }) => (
+                        <Flatpickr
+                          {...field}
+                          className={classnames("form-control", {
+                            "is-invalid":
+                              data !== null &&
+                              (data.dataFim === null ||
+                                !data.dataFim.length),
+                          })}
+                          id="dataFim"
+                          options={options}
+                          // onChange={(date) => changeData(date)}
+                        />
+                      )}
+                    />
+                  </Col>
                 </Row>
                 <hr />
                 <Row>
@@ -808,7 +850,9 @@ const EnviosForm = () => {
                         </div>
                       </Alert>
                     </div>
-                    {contatos.map((contato, index) => (
+                    {contatos
+                    .filter((contato) => contato.status == 1)
+                    .map((contato, index) => (
                       <div key={index} className="demo-inline-spacing">
                         <div className="form-check form-check-inline">
                           <input
