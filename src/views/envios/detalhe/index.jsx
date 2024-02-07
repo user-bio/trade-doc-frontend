@@ -387,12 +387,14 @@ const EnviosDetalhe = () => {
                       <div className="mb-2">
                         <label>
                           <b>Tipo envio:</b> {detalhe.tipo}
-                          {detalhe.tipo === "recorrente" && detalhe.data_final_envio !== null && (
-                            <>
-                              <br />
-                              <b>Data final:</b> {dataPTBR(detalhe.data_final_envio)}
-                            </>
-                          )}
+                          {detalhe.tipo === "recorrente" &&
+                            detalhe.data_final_envio !== null && (
+                              <>
+                                <br />
+                                <b>Data final:</b>{" "}
+                                {dataPTBR(detalhe.data_final_envio)}
+                              </>
+                            )}
                         </label>
                       </div>
                       <div className="mb-2">
@@ -536,13 +538,18 @@ const EnviosDetalhe = () => {
                                   <tr key={index}>
                                     <td>{dataPTBR(result.createdAt)}</td>
                                     <td>
-                                      {result.Envio_Execucao_Vistos.map(
-                                        (info, position) => (
-                                          <div key={position}>
-                                            {info.Contato.email}
-                                          </div>
-                                        )
-                                      )}
+                                      {result.Envio_Execucao_Vistos &&
+                                        Array.isArray(
+                                          result.Envio_Execucao_Vistos
+                                        ) &&
+                                        result.Envio_Execucao_Vistos.map(
+                                          (info, position) => (
+                                            <div key={position}>
+                                              {info.Contato &&
+                                                info.Contato.email}
+                                            </div>
+                                          )
+                                        )}
                                     </td>
                                     <td className="text-end">
                                       <span
