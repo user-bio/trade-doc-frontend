@@ -329,7 +329,9 @@ const LotesForm = () => {
                         </Label>
                       </div>
                     </div>
-                    {selectFuncionarios.map((item, index) => (
+                    {selectFuncionarios
+                    .filter((funcionario) => funcionario.status == 1)
+                    .map((item, index) => (
                       <div>
                         <div
                           key={index}

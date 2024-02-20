@@ -187,7 +187,9 @@ const DocumentosForm = () => {
     }).then((res) => {
       setListaFuncionarios(res.body.Funcionarios);
       const objFuncionarios = [];
-      res.body.Funcionarios.map((funcionario) => {
+      res.body.Funcionarios
+      .filter((funcionario) => funcionario.status == 1)
+      .map((funcionario) => {
         objFuncionarios.push({
           value: funcionario.id,
           label: funcionario.nome,

@@ -35,7 +35,13 @@ import { httpRequest } from "../../../services/Api";
 const FuncionariosForm = () => {
   isAzure();
 
+  const statusOPT = [
+    { value: "1", label: "Ativo" },
+    { value: "0", label: "Inativo" },
+  ];
+
   const defaultValues = {
+    status: statusOPT[0],
     empresa: null,
   };
 
@@ -63,6 +69,7 @@ const FuncionariosForm = () => {
         token: getToken(),
       }).then((res) => {
         reset({
+          status: res.body.status ? statusOPT[0] : statusOPT[1],
           nome: res.body.nome,
           cpf: formataCPF(res.body.cpf),
           cnpj: formataCNPJ(res.body.cnpj),
@@ -115,6 +122,7 @@ const FuncionariosForm = () => {
         cnh: data.cnh,
         matricula: data.matricula,
         pis: data.pis,
+        status: data.status.value,
       };
 
       if (id === undefined) {
@@ -372,6 +380,28 @@ const FuncionariosForm = () => {
                             //   data !== null &&
                             //   (data.pis === null ||
                             //     !data.pis.length),
+                          })}
+                          {...field}
+                        />
+                      )}
+                    />
+                  </Col>
+                  <Col className="mb-1" xl="4" md="6" sm="12">
+                    <Label className="form-label" for="cnpj">
+                      Status
+                    </Label>
+
+                    <Controller
+                      id="status"
+                      control={control}
+                      name="status"
+                      render={({ field }) => (
+                        <Select
+                          options={statusOPT}
+                          classNamePrefix="select"
+                          theme={selectThemeColors}
+                          className={classnames("react-select", {
+                            "is-invalid": data !== null && data.status === null,
                           })}
                           {...field}
                         />

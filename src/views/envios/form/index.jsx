@@ -151,7 +151,7 @@ const EnviosForm = () => {
   }, []);
 
   useEffect(() => {
-    httpRequest(`empresas`, {
+    httpRequest(`empresas?status=1`, {
       method: "GET",
       token: getToken(),
     }).then((res) => {
@@ -920,8 +920,10 @@ const EnviosForm = () => {
                           <span>Nenhum funcionário disponível</span>
                         </div>
                       </Alert>
-                    </div>
-                    {funcionarios.map((funcionario, index) => (
+                    </div>                    
+                    {funcionarios
+                    .filter((funcionario) => funcionario.status == 1)
+                    .map((funcionario, index) => (
                       <div key={index} className="demo-inline-spacing">
                         <div className="form-check form-check-inline">
                           <input
