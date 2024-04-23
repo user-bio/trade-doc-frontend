@@ -101,6 +101,7 @@ const DataTablesReOrder = () => {
     { value: "pendente", label: "Pendente" },
     { value: "aprovada", label: "Aprovada" },
     { value: "reprovada", label: "Reprovada" },
+    { value: "inativado", label: "Inativado" },
   ];
 
   if (getEnvioFIltro()) {
