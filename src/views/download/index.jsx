@@ -17,8 +17,8 @@ const Download = () => {
   let { id } = useParams();
 
   MySwal.fire({
-    title: "Política de privacidade",
-    html: "<p class='text-start'>Esta mensagem, incluindo os seus anexos, é dirigida exclusivamente ao destinatário, com propósito específico, e, pode conter dados pessoais, informações confidenciais e legalmente protegidas. Se você não for destinatário desta mensagem, desde já fica notificado de abster-se a divulgar, copiar, distribuir, examinar ou, de qualquer forma, utilizar a informação contida nesta mensagem, por ser ilegal e não ter autorização para tais atos. Se você a recebeu por engano, avise imediatamente o remetente e apague-a. Caso seja o destinatário, ressaltamos que as informações ou dados pessoais aqui transacionados devem ser tratados com respeito à privacidade e fundamentos previstos na Lei nº 13.709/2018 – Lei Geral de Proteção de Dados Pessoais (LGPD) e demais legislações aplicáveis.</p>",
+    title: "Política de Confidencialidade",
+    html: "<p class='text-start'>Este acesso, incluindo os seus anexos, é dirigido exclusivamente ao destinatário, com propósito específico, e, pode conter dados pessoais, informações confidenciais e legalmente protegidas. Se você não for destinatário deste acesso, desde já fica notificado de abster-se a divulgar, copiar, distribuir, examinar ou, de qualquer forma, utilizar a informação contida nesta mensagem, por ser ilegal e não ter autorização para tais atos. Se você a recebeu por engano, avise imediatamente o remetente e apague-a. Caso seja o destinatário, ressaltamos que as informações ou dados pessoais aqui transacionados devem ser tratados com respeito à privacidade e fundamentos previstos na Lei nº 13.709/2018 – Lei Geral de Proteção de Dados Pessoais (LGPD) e demais legislações aplicáveis.<br /><br />Neste acesso, declaro ciência e concordância as condições do termo de confidencialidade do site, <a href='https://app-bioseta.azurewebsites.net/api/v1/file/politicas-de-privacidade' target='_blank'>saiba mais.</a></p>",
     icon: "warning",
     showCancelButton: false,
     confirmButtonText: "Sim, entendido!",
@@ -28,7 +28,14 @@ const Download = () => {
       cancelButton: "btn btn-danger ms-1",
     },
     buttonsStyling: false,
-  })
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+  }).then((result) => {
+    if (result.isConfirmed) {
+      console.log("Modal closed");
+      // Enviar para endpoint que registra o aceite com: id do usuário, id do link de documentos, data e hora
+    }
+  });
 
   useEffect(() => {
     httpRequest(`envios/arquivos/${id}`, {
