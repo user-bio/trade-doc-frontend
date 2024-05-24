@@ -73,13 +73,34 @@ const EnviosDetalhe = () => {
         method: "GET",
         token: getToken(),
       }).then((res) => {
-        console.log("aqui");
-        console.log(res.body.dados);
-        setData(res.body.dados);
-        setDetalhe(res.body.dados);
-        setEmpresa(res.body.dados.Empresa);
-        setCliente(res.body.dados.Cliente);
-        setTiposVazio(res.body.dados.tiposVazios);
+        const dadosTratados = res.body.dados;
+       
+        Promise.all(
+          dadosTratados.Envio_Execucaos.map(async (item) => {
+            try {
+              const res = await httpRequest(`logs/politicas/${item.id}`, {
+                method: "GET",
+                token: getToken(),
+              });
+              item.logs_politicas = res.body; // Assumindo que a resposta relevante está em res.body
+            } catch (error) {
+              console.error('Erro ao buscar logs politicas:', error);
+              item.logs_politicas = []; // Adiciona uma chave vazia em caso de erro
+            }
+            return item;
+          })
+        ).then(updatedItems => {
+          dadosTratados.Envio_Execucaos = updatedItems;
+          setData(dadosTratados);
+          setDetalhe(dadosTratados);
+          setEmpresa(dadosTratados.Empresa);
+          setCliente(dadosTratados.Cliente);
+          setTiposVazio(dadosTratados.tiposVazios);
+        }).catch(error => {
+          console.error('Erro ao processar Envio_Execucaos:', error);
+        });
+      }).catch(error => {
+        console.error('Erro ao buscar envios:', error);
       });
     }, []);
   }
@@ -525,9 +546,10 @@ const EnviosDetalhe = () => {
                         <table className="table">
                           <thead>
                             <tr>
-                              <th width="33%">Data envio</th>
-                              <th width="33%">Lista E-mails</th>
-                              <th width="33%" className="text-end">
+                              <th width="20%">Data envio</th>
+                              <th width="20%">Lista E-mails</th>
+                              <th width="20%">Assinatura de logs</th>
+                              <th width="20%" className="text-end">
                                 Status
                               </th>
                             </tr>
@@ -547,6 +569,18 @@ const EnviosDetalhe = () => {
                                             <div key={position}>
                                               {info.Contato &&
                                                 info.Contato.email}
+                                            </div>
+                                          )
+                                        )}
+                                    </td>
+                                    <td>
+                                    {result.logs_politicas &&
+                                        result.logs_politicas.map(
+                                          (info, position) => (
+                                            <div key={position}>
+                                              <a href={`https://app-bioseta.azurewebsites.net/api/v1/log/${info.arquivo}`} target="_blank">
+                                                Log: {info.Usuario.first_name}
+                                              </a>
                                             </div>
                                           )
                                         )}
