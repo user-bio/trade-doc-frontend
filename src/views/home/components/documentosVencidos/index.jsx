@@ -34,7 +34,6 @@ const DocumentosVencidos = () => {
       method: "GET",
       token: getToken(),
     }).then((res) => {
-      console.log(res.body);
 
       const setoresObjeto = res.body.reduce((acc, current) => {
         const {
@@ -77,19 +76,25 @@ const DocumentosVencidos = () => {
 
       if(Usuarios.isAdmin()){
         setDados(newData);
+
+        const firstTab = newData.findIndex((item) =>
+          item.documentos.some((documento) => documento.vencido > 0)
+        );
+        setActiveTab(firstTab >= 0 ? firstTab.toString() : "0");
       }else{
         const idsFiltrados = exibirTiposDocumentos();
         const itensFiltrados = newData.filter((objeto) =>
           idsFiltrados.includes(objeto.setor_id)
         );
         setDados(itensFiltrados);
+
+        const firstTab = itensFiltrados.findIndex((item) =>
+          item.documentos.some((documento) => documento.vencido > 0)
+        );
+        setActiveTab(firstTab >= 0 ? firstTab.toString() : "0");
       }
 
       // Definir a primeira aba ativa com base na condição
-      const firstTab = setoresArray.findIndex((item) =>
-        item.documentos.some((documento) => documento.vencido > 0)
-      );
-      setActiveTab(firstTab >= 0 ? firstTab.toString() : "0");
     });
   }, []);
 
