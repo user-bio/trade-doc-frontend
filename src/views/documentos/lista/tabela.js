@@ -175,7 +175,7 @@ const DataTablesReOrder = () => {
 
     for (let setor of setores.Setores) {
       if (setor.Usuarios_Setores.permissoes !== null) {
-        if (setor.Usuarios_Setores.permissoes.uploadDoc) {
+        if (setor.Usuarios_Setores.permissoes.uploadDoc || setor.Usuarios_Setores.permissoes.ver) {
           obj.push(setor.id);
         }
       }

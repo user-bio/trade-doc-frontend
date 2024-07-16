@@ -132,6 +132,7 @@ const UsuariosForm = () => {
   const [selectedPdf, setSelectedPdf] = useState([]);
   const [selectedUpload, setSelectedUpload] = useState([]);
   const [selectedEnvio, setSelectedEnvio] = useState([]);
+  const [selectedVer, setSelectedVer] = useState([]);
   const [selectedP, setSelectedP] = useState([]);
   const [setores, setSetores] = useState([]);
   const [permissoes, setPermissoes] = useState([]);
@@ -181,9 +182,12 @@ const UsuariosForm = () => {
                 if (setor.id === item.id) {
                   obj[index].funcao = item.Usuarios_Setores.tipo;
                   obj[index].check = true;
-                  obj[index].pdPdf = item.Usuarios_Setores.permissoes
-                    ? item.Usuarios_Setores.permissoes.lePDF
+                  obj[index].ver = item.Usuarios_Setores.permissoes
+                    ? item.Usuarios_Setores.permissoes.ver
                     : false;
+                    obj[index].pdPdf = item.Usuarios_Setores.permissoes
+                      ? item.Usuarios_Setores.permissoes.lePDF
+                      : false;
                   obj[index].criaEnvio = item.Usuarios_Setores.permissoes
                     ? item.Usuarios_Setores.permissoes.criaEnvio
                     : false;
@@ -193,11 +197,16 @@ const UsuariosForm = () => {
                 }
               });
             });
+            let arrayAxVer = [];
             let arrayAxPDF = [];
             let arrayAxEnvio = [];
             let arrayAxUpload = [];
             for (var i = obj.length - 1; i >= 0; i--) {
               if (obj[i].check === true) {
+                if (obj[i].ver) {
+                  arrayAxVer.push(obj[i].id);
+                  setValue(`checkbox_d_ver_${obj[i].id}`, true);
+                }
                 if (obj[i].pdPdf) {
                   arrayAxPDF.push(obj[i].id);
                   setValue(`checkbox_d_pdf_${obj[i].id}`, true);
@@ -212,6 +221,7 @@ const UsuariosForm = () => {
                 }
               }
             }
+            setSelectedVer(arrayAxVer);
             setSelectedPdf(arrayAxPDF);
             setSelectedEnvio(arrayAxEnvio);
             setSelectedUpload(arrayAxUpload);
@@ -287,6 +297,7 @@ const UsuariosForm = () => {
           id: setor.id,
           tipo: item ? item.Usuarios_Setores.tipo : "usuario",
           permissoes: {
+            ver: eval(`data.checkbox_d_ver_${setor.id}`),
             lePDF: eval(`data.checkbox_d_pdf_${setor.id}`),
             criaEnvio: eval(`data.checkbox_d_envio_${setor.id}`),
             uploadDoc: eval(`data.checkbox_d_up_${setor.id}`),
@@ -355,6 +366,26 @@ const UsuariosForm = () => {
       } else {
         checks.push(valor.id);
         setSelectedEnvio(checks);
+      }
+    }
+  }
+
+  function marcaCheckVer(valor) {
+    let checks = structuredClone(selectedVer);
+    if (checks.length === 0) {
+      checks.push(valor.id);
+      setSelectedVer(checks);
+    } else {
+      if (checks.includes(valor.id)) {
+        for (var i = checks.length - 1; i >= 0; i--) {
+          if (checks[i] === valor.id) {
+            checks.splice(i, 1);
+          }
+        }
+        setSelectedVer(checks);
+      } else {
+        checks.push(valor.id);
+        setSelectedVer(checks);
       }
     }
   }
@@ -522,6 +553,32 @@ const UsuariosForm = () => {
                           </div>
                         </div>
                         <div className="row">
+                          <div className="col">
+                            <div className="demo-inline-spacing">
+                              <div className="form-check form-check-inline">
+                                <input
+                                  {...register(`checkbox_d_ver_${setor.id}`)}
+                                  className="form-check-input"
+                                  type="checkbox"
+                                  id={`checkbox_d_ver_${setor.id}`}
+                                  checked={
+                                    selectedVer.includes(setor.id)
+                                      ? true
+                                      : false
+                                  }
+                                  onChange={() => {
+                                    marcaCheckVer(setor);
+                                  }}
+                                />
+                                <Label
+                                  for={`checkbox_d_ver_${setor.id}`}
+                                  className="form-check-label"
+                                >
+                                  Ver envio
+                                </Label>
+                              </div>
+                            </div>
+                          </div>
                           <div className="col">
                             <div className="demo-inline-spacing">
                               <div className="form-check form-check-inline">
