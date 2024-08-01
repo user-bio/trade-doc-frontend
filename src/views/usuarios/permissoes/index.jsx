@@ -19,8 +19,13 @@ import isAzure from "../../../components/isAzure";
 import { getToken } from "../../../services/Auth";
 import { httpRequest } from "../../../services/Api";
 
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+
 const UsuariosPermissoes = () => {
   isAzure();
+  
+  const MySwal = withReactContent(Swal);
 
   const defaultValues = {};
 
@@ -124,6 +129,8 @@ const UsuariosPermissoes = () => {
   const [selectedP, setSelectedP] = useState([]);
   const [setores, setSetores] = useState([]);
   const [permissoes, setPermissoes] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
+  const [selectedUsr, setSelectedUsr] = useState([]);
 
   useEffect(() => {
     httpRequest(`setores`, {
@@ -131,6 +138,27 @@ const UsuariosPermissoes = () => {
       token: getToken(),
     }).then((res) => {
       setSetores(res.body);
+    });
+  }, []);
+
+  useEffect(() => {
+    httpRequest(`permissoes`, {
+      method: "GET",
+      token: getToken(),
+    }).then((res) => {
+      setPermissoes(res.body);
+    });
+  }, []);
+
+  useEffect(() => {
+    httpRequest(`usuarios`, {
+      method: "GET",
+      token: getToken(),
+    }).then((res) => {
+      let dadosLogado = JSON.parse(atob(getToken().split(".")[1]));
+
+      const result = res.body.filter((usuario) => usuario.id != dadosLogado.id);
+      setUsuarios(result);
     });
   }, []);
 
@@ -234,10 +262,80 @@ const UsuariosPermissoes = () => {
     }
   }
 
+  function marcaCheckUsr(valor) {
+    let checks = structuredClone(selectedUsr);
+    if (checks.length === 0) {
+      checks.push(valor.id);
+      setSelectedUsr(checks);
+    } else {
+      if (checks.includes(valor.id)) {
+        for (var i = checks.length - 1; i >= 0; i--) {
+          if (checks[i] === valor.id) {
+            checks.splice(i, 1);
+          }
+        }
+        setSelectedUsr(checks);
+      } else {
+        checks.push(valor.id);
+        setSelectedUsr(checks);
+      }
+    }
+  }
+
   const onSubmit = (data) => {
     setData(data);
-    console.log(data);
-  }
+
+    
+    const dadosObj = {};
+
+    let objetoPermissoes = [];
+      setores.forEach((setor) => { 
+        const item = dados.Setores ? dados.Setores.find((item) => setor.id === item.id) : false;
+
+        objetoPermissoes.push({
+          id: setor.id,
+          tipo: item ? item.Usuarios_Setores.tipo : "usuario",
+          permissoes: {
+            ver: eval(`data.checkbox_d_ver_${setor.id}`),
+            lePDF: eval(`data.checkbox_d_pdf_${setor.id}`),
+            criaEnvio: eval(`data.checkbox_d_envio_${setor.id}`),
+            uploadDoc: eval(`data.checkbox_d_up_${setor.id}`),
+          },
+        });
+      });
+
+      dadosObj.Setores = objetoPermissoes;
+
+      dadosObj.Permissoes = [];
+      permissoes.map((permissao) => {
+        if (eval(`data.checkbox_p_${permissao.id}`)) {
+          dadosObj.Permissoes.push(permissao.id);
+        }
+      });
+
+      dadosObj.Usuarios = [];
+      usuarios.map((usuario) => {
+        if (eval(`data.checkbox_usr_${usuario.id}`)) {
+          dadosObj.Usuarios.push(usuario.id);
+        }
+      });
+
+      httpRequest(`usuarios/permissoes`, {
+        method: "PUT",
+        body: dadosObj,
+        token: getToken(),
+      }).then((res) => {
+        MySwal.fire({
+          icon: "success",
+          title: "Sucesso!",
+          text: "Atualização de permissões realizada com sucesso.",
+          customClass: {
+            confirmButton: "btn btn-success",
+          },
+        });
+        // navigate("/usuarios");
+      });
+  };
 
   return (
     <Fragment>
@@ -254,7 +352,6 @@ const UsuariosPermissoes = () => {
           <Card>
             <CardBody>
               <Form onSubmit={handleSubmit(onSubmit)}>
-
                 <Row>
                   <Col xl="6" md="6" sm="12">
                     <Label className="form-label" for="documentos">
@@ -404,6 +501,34 @@ const UsuariosPermissoes = () => {
                       </div>
                     ))}
                   </Col>
+                </Row>
+
+                <Row className="pt-4">
+                  <Col xl="12">
+                    <Label className="form-label" for="documentos">
+                      Usuários
+                    </Label>
+                  </Col>
+                  {usuarios.map((usuario, index) => (
+                    <Col key={index} xl="6" md="6" sm="12">
+                      <div className="demo-inline-spacing">
+                        <div className="form-check form-check-inline">
+                          <input
+                            {...register(`checkbox_usr_${usuario.id}`)}
+                            className="form-check-input"
+                            type="checkbox"
+                            id={`checkbox_usr_${usuario.id}`}
+                            onChange={() => {
+                              marcaCheckUsr(usuario);
+                            }}
+                          />
+                          <Label for={`checkbox_usr_${usuario.id}`} className="form-check-label">
+                            {usuario.first_name} - {usuario.email}
+                          </Label>
+                        </div>
+                      </div>
+                    </Col>
+                  ))}
                 </Row>
 
                 <div className=" text-end w-100">
