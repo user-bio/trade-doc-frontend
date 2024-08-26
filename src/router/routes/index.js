@@ -288,7 +288,7 @@ const Routes = [
     element: <UsuariosForm />
   },
   {
-    path: "/usuarios/permissoes",
+    path: "/usuarios-permissoes",
     element: <UsuariosPermissoes />
   }
 ]

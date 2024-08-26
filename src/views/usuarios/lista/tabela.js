@@ -135,7 +135,8 @@ const DataTablesReOrder = () => {
           sortIcon={<ChevronDown size={10} />}
           // paginationComponent={CustomPagination}
           paginationDefaultPage={currentPage + 1}
-          paginationRowsPerPageOptions={[10, 25, 50, 100]}
+          paginationRowsPerPageOptions={[50, 100]}
+          paginationPerPage={50}
         />
       </div>
     </Card>
