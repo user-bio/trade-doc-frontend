@@ -10,12 +10,9 @@ import {
   Button,
   Alert,
 } from "reactstrap";
-import Select from "react-select";
-import { selectThemeColors } from "@utils";
 
 // ** Custom Components
 import Breadcrumbs from "@components/breadcrumbs";
-import Cleave from "cleave.js/react";
 import { useForm, Controller } from "react-hook-form";
 import classnames from "classnames";
 import Swal from "sweetalert2";
@@ -25,6 +22,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 //components
 import isAzure from "../../../components/isAzure";
+import Tooltip from "../../../components/Tooltip";
 import { getToken } from "../../../services/Auth";
 import { httpRequest } from "../../../services/Api";
 
@@ -185,9 +183,9 @@ const UsuariosForm = () => {
                   obj[index].ver = item.Usuarios_Setores.permissoes
                     ? item.Usuarios_Setores.permissoes.ver
                     : false;
-                    obj[index].pdPdf = item.Usuarios_Setores.permissoes
-                      ? item.Usuarios_Setores.permissoes.lePDF
-                      : false;
+                  obj[index].pdPdf = item.Usuarios_Setores.permissoes
+                    ? item.Usuarios_Setores.permissoes.lePDF
+                    : false;
                   obj[index].criaEnvio = item.Usuarios_Setores.permissoes
                     ? item.Usuarios_Setores.permissoes.criaEnvio
                     : false;
@@ -290,8 +288,10 @@ const UsuariosForm = () => {
       //   });
       // });
       let objetoPermissoes = [];
-      setores.forEach((setor) => { 
-        const item = dados.Setores ? dados.Setores.find((item) => setor.id === item.id) : false;
+      setores.forEach((setor) => {
+        const item = dados.Setores
+          ? dados.Setores.find((item) => setor.id === item.id)
+          : false;
 
         objetoPermissoes.push({
           id: setor.id,
@@ -532,7 +532,7 @@ const UsuariosForm = () => {
                   </Col>
                 </Row>
                 <Row>
-                  <Col xl="6" md="6" sm="12">
+                  <Col xl="8" md="8" sm="12">
                     <Label className="form-label" for="documentos">
                       Setores
                     </Label>
@@ -574,7 +574,14 @@ const UsuariosForm = () => {
                                   for={`checkbox_d_ver_${setor.id}`}
                                   className="form-check-label"
                                 >
-                                  Ver envio
+                                  <div className="d-flex">
+                                    <span className="pe-1 font-12">Ver envio</span>
+                                    <Tooltip
+                                      id={"envio-"+setor.id+index}
+                                      tooltipText="Permite a visualização da TELA DE DOCUMENTOS"
+                                      placement="top"
+                                    />
+                                  </div>
                                 </Label>
                               </div>
                             </div>
@@ -600,7 +607,14 @@ const UsuariosForm = () => {
                                   for={`checkbox_d_envio_${setor.id}`}
                                   className="form-check-label"
                                 >
-                                  Criar envio
+                                  <div className="d-flex">
+                                    <span className="pe-1 font-12">Criar envio</span>
+                                    <Tooltip
+                                      id={"criar-envio-"+setor.id+index}
+                                      tooltipText="Permite a criação de novos envios na TELA DE ENVIOS"
+                                      placement="top"
+                                    />
+                                  </div>
                                 </Label>
                               </div>
                             </div>
@@ -626,7 +640,14 @@ const UsuariosForm = () => {
                                   for={`checkbox_d_up_${setor.id}`}
                                   className="form-check-label"
                                 >
-                                  Upload
+                                  <div className="d-flex">
+                                    <span className="pe-1 font-12">Upload</span>
+                                    <Tooltip
+                                      id={"upload-"+setor.id+index}
+                                      tooltipText="Permite o upload/atualização de documentos na TELA DE DOCUMENTOS"
+                                      placement="top"
+                                    />
+                                  </div>
                                 </Label>
                               </div>
                             </div>
@@ -652,7 +673,14 @@ const UsuariosForm = () => {
                                   for={`checkbox_d_pdf_${setor.id}`}
                                   className="form-check-label"
                                 >
-                                  Ver PDF
+                                  <div className="d-flex">
+                                    <span className="pe-1 font-12">Ver PDF</span>
+                                    <Tooltip
+                                      id={"pdf-"+setor.id+index}
+                                      tooltipText="Permite a visualização do documento que está no sistema, através da TELA DE DOCUMENTOS"
+                                      placement="top"
+                                    />
+                                  </div>
                                 </Label>
                               </div>
                             </div>
@@ -661,7 +689,7 @@ const UsuariosForm = () => {
                       </div>
                     ))}
                   </Col>
-                  <Col xl="6" md="6" sm="12">
+                  <Col xl="4" md="4" sm="12">
                     <Label className="form-label" for="permissoes">
                       Permissões
                     </Label>

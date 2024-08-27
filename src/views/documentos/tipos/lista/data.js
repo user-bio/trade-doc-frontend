@@ -85,28 +85,28 @@ export const coluns = [
     name: "NOME",
     reorder: true,
     sortable: true,
-    minWidth: "225px",
+    minWidth: "350px",
     selector: (row) => (row.nome ? row.nome.slice(0, 30) : ""),
   },
   {
     name: "SETOR",
     reorder: true,
     sortable: true,
-    minWidth: "225px",
+    minWidth: "200px",
     selector: (row) => row.Setore.setor,
   },
   {
     name: "TIPO",
     reorder: true,
     sortable: true,
-    minWidth: "225px",
+    minWidth: "100px",
     selector: (row) => row.tipo,
   },
   {
     name: "STATUS",
     reorder: true,
     sortable: true,
-    minWidth: "150px",
+    minWidth: "100px",
     selector: (row) => {
       if (row.status) {
         return (
