@@ -16,6 +16,7 @@ import { useForm, Controller } from "react-hook-form";
 
 //components
 import isAzure from "../../../components/isAzure";
+import Tooltip from "../../../components/Tooltip";
 import { getToken } from "../../../services/Auth";
 import { httpRequest } from "../../../services/Api";
 
@@ -353,7 +354,7 @@ const UsuariosPermissoes = () => {
             <CardBody>
               <Form onSubmit={handleSubmit(onSubmit)}>
                 <Row>
-                  <Col xl="6" md="6" sm="12">
+                  <Col xl="8" md="8" sm="12">
                     <Label className="form-label" for="documentos">
                       Setores
                     </Label>
@@ -372,8 +373,7 @@ const UsuariosPermissoes = () => {
                               {setor.setor}
                             </div>
                           </div>
-                        </div>
-                        <div className="row">
+                        </div><div className="row">
                           <div className="col">
                             <div className="demo-inline-spacing">
                               <div className="form-check form-check-inline">
@@ -382,6 +382,11 @@ const UsuariosPermissoes = () => {
                                   className="form-check-input"
                                   type="checkbox"
                                   id={`checkbox_d_ver_${setor.id}`}
+                                  checked={
+                                    selectedVer.includes(setor.id)
+                                      ? true
+                                      : false
+                                  }
                                   onChange={() => {
                                     marcaCheckVer(setor);
                                   }}
@@ -390,7 +395,14 @@ const UsuariosPermissoes = () => {
                                   for={`checkbox_d_ver_${setor.id}`}
                                   className="form-check-label"
                                 >
-                                  Ver envio
+                                  <div className="d-flex">
+                                    <span className="pe-1 font-12">Ver envio</span>
+                                    <Tooltip
+                                      id={"envio-"+setor.id+index}
+                                      tooltipText="Permite a visualização da TELA DE DOCUMENTOS"
+                                      placement="top"
+                                    />
+                                  </div>
                                 </Label>
                               </div>
                             </div>
@@ -403,6 +415,11 @@ const UsuariosPermissoes = () => {
                                   className="form-check-input"
                                   type="checkbox"
                                   id={`checkbox_d_envio_${setor.id}`}
+                                  checked={
+                                    selectedEnvio.includes(setor.id)
+                                      ? true
+                                      : false
+                                  }
                                   onChange={() => {
                                     marcaCheckEnvio(setor);
                                   }}
@@ -411,7 +428,14 @@ const UsuariosPermissoes = () => {
                                   for={`checkbox_d_envio_${setor.id}`}
                                   className="form-check-label"
                                 >
-                                  Criar envio
+                                  <div className="d-flex">
+                                    <span className="pe-1 font-12">Criar envio</span>
+                                    <Tooltip
+                                      id={"criar-envio-"+setor.id+index}
+                                      tooltipText="Permite a criação de novos envios na TELA DE ENVIOS"
+                                      placement="top"
+                                    />
+                                  </div>
                                 </Label>
                               </div>
                             </div>
@@ -424,6 +448,11 @@ const UsuariosPermissoes = () => {
                                   className="form-check-input"
                                   type="checkbox"
                                   id={`checkbox_d_up_${setor.id}`}
+                                  checked={
+                                    selectedUpload.includes(setor.id)
+                                      ? true
+                                      : false
+                                  }
                                   onChange={() => {
                                     marcaCheckUpload(setor);
                                   }}
@@ -432,7 +461,14 @@ const UsuariosPermissoes = () => {
                                   for={`checkbox_d_up_${setor.id}`}
                                   className="form-check-label"
                                 >
-                                  Upload
+                                  <div className="d-flex">
+                                    <span className="pe-1 font-12">Upload</span>
+                                    <Tooltip
+                                      id={"upload-"+setor.id+index}
+                                      tooltipText="Permite o upload/atualização de documentos na TELA DE DOCUMENTOS"
+                                      placement="top"
+                                    />
+                                  </div>
                                 </Label>
                               </div>
                             </div>
@@ -445,6 +481,11 @@ const UsuariosPermissoes = () => {
                                   className="form-check-input"
                                   type="checkbox"
                                   id={`checkbox_d_pdf_${setor.id}`}
+                                  checked={
+                                    selectedPdf.includes(setor.id)
+                                      ? true
+                                      : false
+                                  }
                                   onChange={() => {
                                     marcaCheckPdf(setor);
                                   }}
@@ -453,7 +494,14 @@ const UsuariosPermissoes = () => {
                                   for={`checkbox_d_pdf_${setor.id}`}
                                   className="form-check-label"
                                 >
-                                  Ver PDF
+                                  <div className="d-flex">
+                                    <span className="pe-1 font-12">Ver PDF</span>
+                                    <Tooltip
+                                      id={"pdf-"+setor.id+index}
+                                      tooltipText="Permite a visualização do documento que está no sistema, através da TELA DE DOCUMENTOS"
+                                      placement="top"
+                                    />
+                                  </div>
                                 </Label>
                               </div>
                             </div>
@@ -462,7 +510,7 @@ const UsuariosPermissoes = () => {
                       </div>
                     ))}
                   </Col>
-                  <Col xl="6" md="6" sm="12">
+                  <Col xl="4" md="4" sm="12">
                     <Label className="form-label" for="permissoes">
                       Permissões
                     </Label>
