@@ -378,39 +378,6 @@ const UsuariosPermissoes = () => {
                             <div className="demo-inline-spacing">
                               <div className="form-check form-check-inline">
                                 <input
-                                  {...register(`checkbox_d_ver_${setor.id}`)}
-                                  className="form-check-input"
-                                  type="checkbox"
-                                  id={`checkbox_d_ver_${setor.id}`}
-                                  checked={
-                                    selectedVer.includes(setor.id)
-                                      ? true
-                                      : false
-                                  }
-                                  onChange={() => {
-                                    marcaCheckVer(setor);
-                                  }}
-                                />
-                                <Label
-                                  for={`checkbox_d_ver_${setor.id}`}
-                                  className="form-check-label"
-                                >
-                                  <div className="d-flex">
-                                    <span className="pe-1 font-12">Ver envio</span>
-                                    <Tooltip
-                                      id={"envio-"+setor.id+index}
-                                      tooltipText="Permite a visualização da TELA DE DOCUMENTOS"
-                                      placement="top"
-                                    />
-                                  </div>
-                                </Label>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="col">
-                            <div className="demo-inline-spacing">
-                              <div className="form-check form-check-inline">
-                                <input
                                   {...register(`checkbox_d_envio_${setor.id}`)}
                                   className="form-check-input"
                                   type="checkbox"
@@ -433,6 +400,39 @@ const UsuariosPermissoes = () => {
                                     <Tooltip
                                       id={"criar-envio-"+setor.id+index}
                                       tooltipText="Permite a criação de novos envios na TELA DE ENVIOS"
+                                      placement="top"
+                                    />
+                                  </div>
+                                </Label>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col">
+                            <div className="demo-inline-spacing">
+                              <div className="form-check form-check-inline">
+                                <input
+                                  {...register(`checkbox_d_ver_${setor.id}`)}
+                                  className="form-check-input"
+                                  type="checkbox"
+                                  id={`checkbox_d_ver_${setor.id}`}
+                                  checked={
+                                    selectedVer.includes(setor.id)
+                                      ? true
+                                      : false
+                                  }
+                                  onChange={() => {
+                                    marcaCheckVer(setor);
+                                  }}
+                                />
+                                <Label
+                                  for={`checkbox_d_ver_${setor.id}`}
+                                  className="form-check-label"
+                                >
+                                  <div className="d-flex">
+                                    <span className="pe-1 font-12">Ver lista docs</span>
+                                    <Tooltip
+                                      id={"envio-"+setor.id+index}
+                                      tooltipText="Permite a visualização da TELA DE DOCUMENTOS"
                                       placement="top"
                                     />
                                   </div>
