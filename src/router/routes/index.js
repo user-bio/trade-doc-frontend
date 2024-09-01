@@ -261,7 +261,7 @@ const Routes = [
     element: <EmailForm />
   },
   {
-    path: "/download/:id",
+    path: "/download/:id/:email",
     element: <Download />,
     meta: {
       layout: "blank"

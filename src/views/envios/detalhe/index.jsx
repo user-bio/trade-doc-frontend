@@ -579,7 +579,7 @@ const EnviosDetalhe = () => {
                                           (info, position) => (
                                             <div key={position}>
                                               <a href={`https://app-bioseta.azurewebsites.net/api/v1/log/${info.arquivo}`} target="_blank">
-                                                Log: {info.Usuario.first_name}
+                                                Log: {info.Contato.nome}
                                               </a>
                                             </div>
                                           )

@@ -24,10 +24,11 @@ const Download = () => {
   const [erro, setErro] = useState(null);
 
   let { id } = useParams();
+  let { email } = useParams();
 
   if(isAuthenticated){
     
-    httpRequest(`logs/politicas/${id}/${usuarios.id}`, {
+    httpRequest(`logs/politicas/${id}/${email}`, {
       method: "GET",
       token: getToken(),
     }).then((res) => {
@@ -51,13 +52,25 @@ const Download = () => {
             httpRequest(`logs/politicas`, {
               method: "POST",
               body: {
-                envio_execucao_id: id
+                envio_execucao_id: id,
+                envio_execucao_email: email
               },
               token: getToken(),
             });
           }
         });
       }
+    }).catch(e => {
+      MySwal.fire({
+        title: "Política de Confidencialidade",
+        html: "<p class='text-start'>Você está acessando de forma inválida!</p>",
+        icon: "warning",
+        showCancelButton: false,
+        buttonsStyling: false,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false
+      })
     });
   }
 

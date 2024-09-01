@@ -2,7 +2,7 @@ import axios from "axios";
 require("dotenv").config();
 
 //const BASE_URL = "https://bioseta-api.herokuapp.com/api/v1/";
-export const BASE_URL = "http://localhost:3002/api/v1/";
+export const BASE_URL = "http://localhost:3003/api/v1/";
 // export const BASE_URL = "https://app-bioseta.azurewebsites.net/api/v1/";
 
 
