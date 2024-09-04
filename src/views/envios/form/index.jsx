@@ -171,11 +171,12 @@ const EnviosForm = () => {
       method: "GET",
       token: getToken(),
     }).then((res) => {
+      const docsFilter = res.body.filter(item => item.status === true);
       if(Usuarios.isAdmin()){
-        setDocumentos(res.body);
+        setDocumentos(docsFilter);
       }else{
         const idsFiltrados = exibirTiposDocumentos();
-        const itensFiltrados = res.body.filter((objeto) =>
+        const itensFiltrados = docsFilter.filter((objeto) =>
           idsFiltrados.includes(objeto.setor_id)
         );
         setDocumentos(itensFiltrados);
@@ -353,8 +354,10 @@ const EnviosForm = () => {
           method: "GET",
           token: getToken(),
         }).then((em) => {
-          setDocumentos(em.body);
-          let obj = em.body;
+          
+          const docsFilter = em.body.filter(item => item.status === true);
+          setDocumentos(docsFilter);
+          let obj = docsFilter;
           em.body.map((tipo, index) => {
             res.body.dados.Documentos_Tipos.filter(function (item) {
               if (tipo.id === item.id) {
