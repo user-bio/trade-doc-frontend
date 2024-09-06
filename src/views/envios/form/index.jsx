@@ -166,6 +166,7 @@ const EnviosForm = () => {
     });
   }, []);
 
+if (id === undefined) {
   useEffect(() => {
     httpRequest(`documentos/tipos`, {
       method: "GET",
@@ -183,6 +184,7 @@ const EnviosForm = () => {
       }
     });
   }, []);
+}
 
   function exibirTiposDocumentos() {
     const setores = Usuarios.getUserStorage();
@@ -323,6 +325,7 @@ const EnviosForm = () => {
         method: "GET",
         token: getToken(),
       }).then((res) => {
+        console.log(res.body.dados);
         setEnvio(res.body.dados);
 
         setTipoSele(res.body.dados.tipo);
@@ -357,8 +360,9 @@ const EnviosForm = () => {
           
           const docsFilter = em.body.filter(item => item.status === true);
           setDocumentos(docsFilter);
+
           let obj = docsFilter;
-          em.body.map((tipo, index) => {
+          docsFilter.map((tipo, index) => {
             res.body.dados.Documentos_Tipos.filter(function (item) {
               if (tipo.id === item.id) {
                 obj[index].check = true;
