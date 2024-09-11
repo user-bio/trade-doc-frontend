@@ -181,12 +181,17 @@ const LotesForm = () => {
 
   function marcaCheck(e){
     const isChecked = e.target.checked;
+    console.log(selectFuncionarios);
     if(isChecked){
-      selectFuncionarios.map((item) => {
+      
+      // .filter((funcionario) => funcionario.status == 1)
+      selectFuncionarios.filter((funcionario) => funcionario.status == 1)
+      .map((item) => {
         setValue(`funcionario_${item.id}`, true)
       })
     }else{
-      selectFuncionarios.map((item) => {
+      selectFuncionarios.filter((funcionario) => funcionario.status == 1)
+      .map((item) => {
         setValue(`funcionario_${item.id}`, false)
       })
     }
