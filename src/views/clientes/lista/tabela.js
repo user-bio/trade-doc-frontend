@@ -47,8 +47,8 @@ const DataTablesReOrder = () => {
     tipo: null,
     empresa: null,
     funcionario: null,
-    campo: { value: "id", label: "ID" },
-    ordenacao: { value: "decrescente", label: "Decrescente" },
+    campo: { value: "razao_social", label: "Razao Social" },
+    ordenacao: { value: "crescente", label: "Crescente" },
   };
 
   const ordenacaoOPT = [
@@ -114,7 +114,7 @@ const DataTablesReOrder = () => {
       method: "GET",
       token: getToken(),
     });
-    
+
     return retorno.body;
   }
 
