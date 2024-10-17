@@ -39,6 +39,11 @@ const DataTablesReOrder = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [filteredData, setFilteredData] = useState([]);
   const [dataForm, setDataForm] = useState(null);
+  const [selectNome, setselectNome] = useState([]);
+  const [selectEmpresa, setselectEmpresa] = useState([]);
+  const [selectCpf, setselectCpf] = useState([]);
+  const [selectCnpj, setselectCnpj] = useState([]);
+
   // ** Hooks
   const { t } = useTranslation();
 
@@ -81,6 +86,43 @@ const DataTablesReOrder = () => {
       token: getToken(),
     }).then((res) => {
       setDados(res.body);
+      const objNome = [];
+      res.body.map((item) => {
+        objNome.push({
+          value: item.id,
+          label: item.nome,
+        });
+      });
+      setselectNome(objNome);
+      const objCpf = [];
+      res.body.map((item) => {
+        objCpf.push({
+          value: item.id,
+          label: item.cpf,
+        });
+      });
+      setselectCpf(objCpf);
+      const objCnpj = [];
+      res.body.map((item) => {
+        objCnpj.push({
+          value: item.id,
+          label: item.cnpj,
+        });
+      });
+      setselectCnpj(objCnpj);
+      httpRequest(`empresas`, {
+        method: "GET",
+        token: getToken(),
+      }).then((resp) => {
+        const objCnpj = [];
+        resp.body.map((item) => {
+          objCnpj.push({
+            value: item.id,
+            label: item.nome_fantasia,
+          });
+        });
+        setselectEmpresa(objCnpj);
+      });
     });
   }, []);
 
@@ -92,7 +134,33 @@ const DataTablesReOrder = () => {
   const onSubmit = (data) => {
     setDataForm(data);
     buscaFiltro(data).then((res) => {
-      setDados(res);
+      const idsToFilter = [
+        data.nome?.value,
+        data.cpf?.value,
+        data.cnpj?.value,
+      ].filter((id) => id !== undefined && id !== null); // Filtra apenas os IDs que não são nulos ou indefinidos
+
+      // ID da empresa para filtrar
+      const empresaId = data.empresa?.value; // Pega o ID da empresa
+
+      let filteredRes = res;
+
+      if (idsToFilter.length > 0) {
+        // Filtra pelo ID do funcionário (item.id)
+        filteredRes = filteredRes.filter((item) =>
+          idsToFilter.includes(item.id)
+        );
+      }
+
+      if (empresaId) {
+        // Filtra pelo ID da empresa (item.Empresa.id)
+        filteredRes = filteredRes.filter(
+          (item) => item.Empresa?.id === empresaId
+        );
+      }
+
+      // Define os resultados filtrados
+      setDados(filteredRes);
     });
   };
 
@@ -201,6 +269,94 @@ const DataTablesReOrder = () => {
                   />
                 </Col>
               </Row>
+            </Col>
+            <Col className={`mb-1`} xl="4" md="6" sm="12">
+              <Label className="form-label" for="nome">
+                Nome
+              </Label>
+
+              <Controller
+                id="nome"
+                control={control}
+                name="nome"
+                render={({ field }) => (
+                  <Select
+                    options={selectNome}
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    className={"react-select"}
+                    {...field}
+                    isClearable={true}
+                    value={field.value || null}
+                  />
+                )}
+              />
+            </Col>
+            <Col className={`mb-1`} xl="4" md="6" sm="12">
+              <Label className="form-label" for="empresa">
+                Empresa
+              </Label>
+
+              <Controller
+                id="empresa"
+                control={control}
+                name="empresa"
+                render={({ field }) => (
+                  <Select
+                    options={selectEmpresa}
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    className={"react-select"}
+                    {...field}
+                    isClearable={true}
+                    value={field.value || null}
+                  />
+                )}
+              />
+            </Col>
+            <Col className={`mb-1`} xl="3" md="6" sm="12">
+              <Label className="form-label" for="cpf">
+                CPF
+              </Label>
+
+              <Controller
+                id="cpf"
+                control={control}
+                name="cpf"
+                render={({ field }) => (
+                  <Select
+                    options={selectCpf}
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    className={"react-select"}
+                    {...field}
+                    isClearable={true}
+                    value={field.value || null}
+                  />
+                )}
+              />
+            </Col>
+            <Col className={`mb-1`} xl="3" md="6" sm="12">
+              <Label className="form-label" for="cnpj">
+                CNPJ
+              </Label>
+
+              <Controller
+                id="cnpj"
+                control={control}
+                name="cnpj"
+                render={({ field }) => (
+                  <Select
+                    options={selectCnpj}
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    className={"react-select"}
+                    {...field}
+                    isClearable={true}
+                    value={field.value || null}
+                  />
+                )}
+              />
             </Col>
             <Col className={`mb-1`} xl="12" md="12" sm="12">
               <Button type="submit" color="outline-primary">
