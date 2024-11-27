@@ -39,6 +39,8 @@ const DataTablesReOrder = () => {
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [filteredData, setFilteredData] = useState([]);
+  const [selectNome, setselectNome] = useState([]);
+  const [selectEmail, setselectEmail] = useState([]);
   const [dataForm, setDataForm] = useState(null);
   // ** Hooks
   const { t } = useTranslation();
@@ -74,7 +76,6 @@ const DataTablesReOrder = () => {
     formState: { errors },
   } = useForm({ defaultValues });
 
-
   const onSubmit = (data) => {
     setDataForm(data);
     buscaFiltro(data).then((res) => {
@@ -97,7 +98,16 @@ const DataTablesReOrder = () => {
       method: "GET",
       token: getToken(),
     });
-    
+
+    const filtroIds = [data.nome?.value, data.email?.value].filter(Boolean);
+
+    if (retorno.body && retorno.body.Contatos && filtroIds.length > 0) {
+      // Filtra somente se filtroIds não estiver vazio
+      retorno.body.Contatos = retorno.body.Contatos.filter((contato) =>
+        filtroIds.includes(contato.id)
+      );
+    }
+
     return retorno.body;
   }
 
@@ -107,6 +117,24 @@ const DataTablesReOrder = () => {
       token: getToken(),
     }).then((res) => {
       setDados(res.body);
+
+      const objNome = [];
+      res.body.Contatos.map((item) => {
+        objNome.push({
+          value: item.id,
+          label: item.nome,
+        });
+      });
+      setselectNome(objNome);
+
+      const objEmail = [];
+      res.body.Contatos.map((item) => {
+        objEmail.push({
+          value: item.id,
+          label: item.email,
+        });
+      });
+      setselectEmail(objEmail);
     });
   }, []);
 
@@ -157,7 +185,7 @@ const DataTablesReOrder = () => {
       <CardBody>
         <Form onSubmit={handleSubmit(onSubmit)}>
           <Row>
-            <Col className={`mb-1`} xl="4" md="6" sm="12">
+            <Col className={`mb-1`} xl="6" md="6" sm="12">
               <Label className="form-label" for="campo">
                 Ordenação
               </Label>
@@ -195,6 +223,50 @@ const DataTablesReOrder = () => {
                   />
                 </Col>
               </Row>
+            </Col>
+            <Col className={`mb-1`} xl="3" md="6" sm="12">
+              <Label className="form-label" for="nome">
+                Nome
+              </Label>
+
+              <Controller
+                id="nome"
+                control={control}
+                name="nome"
+                render={({ field }) => (
+                  <Select
+                    options={selectNome}
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    className={"react-select"}
+                    {...field}
+                    isClearable={true}
+                    value={field.value || null}
+                  />
+                )}
+              />
+            </Col>
+            <Col className={`mb-1`} xl="3" md="6" sm="12">
+              <Label className="form-label" for="email">
+                E-mail
+              </Label>
+
+              <Controller
+                id="email"
+                control={control}
+                name="email"
+                render={({ field }) => (
+                  <Select
+                    options={selectEmail}
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    className={"react-select"}
+                    {...field}
+                    isClearable={true}
+                    value={field.value || null}
+                  />
+                )}
+              />
             </Col>
             <Col className={`mb-1`} xl="12" md="12" sm="12">
               <Button type="submit" color="outline-primary">

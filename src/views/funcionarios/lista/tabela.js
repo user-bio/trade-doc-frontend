@@ -181,6 +181,9 @@ const DataTablesReOrder = () => {
     if (data.status) {
       busca = `${busca}&status=${data.status.value}`;
     }
+    if (data.matricula) {
+      busca = `${busca}&matricula=${data.matricula}`;
+    }
     let retorno = await httpRequest(`funcionarios${busca}`, {
       method: "GET",
       token: getToken(),
@@ -354,6 +357,23 @@ const DataTablesReOrder = () => {
                     {...field}
                     isClearable={true}
                     value={field.value || null}
+                  />
+                )}
+              />
+            </Col>
+            <Col className={`mb-1`} xl="3" md="6" sm="12">
+              <Label className="form-label" for="matricula">
+              Matrícula
+              </Label>
+              <Controller
+                control={control}
+                id="matricula"
+                name="matricula"
+                render={({ field }) => (
+                  <Input
+                    placeholder="Matrícula"
+                    className="form-control"
+                    {...field}
                   />
                 )}
               />

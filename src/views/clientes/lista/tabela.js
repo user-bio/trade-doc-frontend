@@ -67,6 +67,11 @@ const DataTablesReOrder = () => {
     { value: "status", label: "Status" },
   ];
 
+  const statusOPT = [
+    { value: 1, label: "Ativo" },
+    { value: 0, label: "Inativo" },
+  ];
+
   const {
     reset,
     control,
@@ -83,6 +88,7 @@ const DataTablesReOrder = () => {
       method: "GET",
       token: getToken(),
     }).then((res) => {
+
       setDados(res.body);
       const objRazao = [];
       res.body.map((item) => {
@@ -91,6 +97,7 @@ const DataTablesReOrder = () => {
           label: item.razao_social,
         });
       });
+
       setselectRazao(objRazao);
       const objNome = [];
       res.body.map((item) => {
@@ -99,6 +106,7 @@ const DataTablesReOrder = () => {
           label: item.nome_fantasia,
         });
       });
+
       setselectNomeFantasia(objNome);
       const objCnpj = [];
       res.body.map((item) => {
@@ -107,7 +115,9 @@ const DataTablesReOrder = () => {
           label: item.cnpj,
         });
       });
+
       setselectCnpj(objCnpj);
+      
     });
   }, []);
 
@@ -123,8 +133,8 @@ const DataTablesReOrder = () => {
         data.razao_social?.value,
         data.nome_fantasia?.value,
         data.cnpj?.value,
-      ].filter(id => id !== undefined && id !== null); // Filtra apenas os IDs que não são nulos ou indefinidos
-  
+      ].filter(id => id !== undefined && id !== null); 
+      
       if (idsToFilter.length > 0) {
         // Filtra o resultado para incluir itens cujo 'id' esteja em 'idsToFilter'
         const filteredRes = res.filter(item => idsToFilter.includes(item.id));
@@ -305,6 +315,28 @@ const DataTablesReOrder = () => {
                 )}
               />
             </Col>
+            
+            <Col className={`mb-1`} xl="3" md="6" sm="12">
+                  <Label className="form-label" for="status">
+                    Status
+                  </Label>
+                  <Controller
+                    id="status"
+                    control={control}
+                    name="status"
+                    render={({ field }) => (
+                      <Select
+                        options={statusOPT}
+                        classNamePrefix="select"
+                        theme={selectThemeColors}
+                        className={"react-select"}
+                        {...field}
+                        isClearable={true}
+                        value={field.value || null}
+                      />
+                    )}
+                  />
+                </Col>
             <Col className={`mb-1`} xl="12" md="12" sm="12">
               <Button type="submit" color="outline-primary">
                 Filtrar

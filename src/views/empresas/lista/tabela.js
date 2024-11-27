@@ -39,6 +39,9 @@ const DataTablesReOrder = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [filteredData, setFilteredData] = useState([]);
   const [dataForm, setDataForm] = useState(null);
+  const [selectRazao, setselectRazao] = useState([]);
+  const [selectNomeFantasia, setselectNomeFantasia] = useState([]);
+  const [selectCnpj, setselectCnpj] = useState([]);
   // ** Hooks
   const { t } = useTranslation();
 
@@ -79,7 +82,20 @@ const DataTablesReOrder = () => {
   const onSubmit = (data) => {
     setDataForm(data);
     buscaFiltro(data).then((res) => {
-      setDados(res);
+      const idsToFilter = [
+        data.razao_social?.value,
+        data.nome_fantasia?.value,
+        data.cnpj?.value,
+      ].filter(id => id !== undefined && id !== null); 
+      
+      if (idsToFilter.length > 0) {
+        // Filtra o resultado para incluir itens cujo 'id' esteja em 'idsToFilter'
+        const filteredRes = res.filter(item => idsToFilter.includes(item.id));
+        setDados(filteredRes);
+      } else {
+        // Se nenhum dos campos tiver valor, apenas define o resultado original
+        setDados(res);
+      }
     });
   };
 
@@ -110,7 +126,35 @@ const DataTablesReOrder = () => {
       method: "GET",
       token: getToken(),
     }).then((res) => {
+
       setDados(res.body);
+      const objRazao = [];
+      res.body.map((item) => {
+        objRazao.push({
+          value: item.id,
+          label: item.razao_social,
+        });
+      });
+
+      setselectRazao(objRazao);
+      const objNome = [];
+      res.body.map((item) => {
+        objNome.push({
+          value: item.id,
+          label: item.nome_fantasia,
+        });
+      });
+
+      setselectNomeFantasia(objNome);
+      const objCnpj = [];
+      res.body.map((item) => {
+        objCnpj.push({
+          value: item.id,
+          label: item.cnpj,
+        });
+      });
+
+      setselectCnpj(objCnpj);
     });
   }, []);
 
@@ -199,6 +243,72 @@ const DataTablesReOrder = () => {
                   />
                 </Col>
               </Row>
+            </Col>
+            <Col className={`mb-1`} xl="4" md="6" sm="12">
+              <Label className="form-label" for="razao_social">
+                Razao Social
+              </Label>
+
+              <Controller
+                id="razao_social"
+                control={control}
+                name="razao_social"
+                render={({ field }) => (
+                  <Select
+                    options={selectRazao}
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    className={"react-select"}
+                    {...field}
+                    isClearable={true}
+                    value={field.value || null}
+                  />
+                )}
+              />
+            </Col>
+            <Col className={`mb-1`} xl="4" md="6" sm="12">
+              <Label className="form-label" for="nome_fantasia">
+                Nome Fantasia
+              </Label>
+
+              <Controller
+                id="nome_fantasia"
+                control={control}
+                name="nome_fantasia"
+                render={({ field }) => (
+                  <Select
+                    options={selectNomeFantasia}
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    className={"react-select"}
+                    {...field}
+                    isClearable={true}
+                    value={field.value || null}
+                  />
+                )}
+              />
+            </Col>
+            <Col className={`mb-1`} xl="3" md="6" sm="12">
+              <Label className="form-label" for="cnpj">
+                CNPJ
+              </Label>
+
+              <Controller
+                id="cnpj"
+                control={control}
+                name="cnpj"
+                render={({ field }) => (
+                  <Select
+                    options={selectCnpj}
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    className={"react-select"}
+                    {...field}
+                    isClearable={true}
+                    value={field.value || null}
+                  />
+                )}
+              />
             </Col>
             <Col className={`mb-1`} xl="12" md="12" sm="12">
               <Button type="submit" color="outline-primary">
