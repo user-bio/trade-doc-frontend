@@ -39,6 +39,8 @@ const DataTablesReOrder = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [filteredData, setFilteredData] = useState([]);
   const [dataForm, setDataForm] = useState(null);
+  const [selectNome, setselectNome] = useState([]);
+  const [selectSetor, setselectSetor] = useState([]);
 
   // ** Hooks
   const { t } = useTranslation();
@@ -64,6 +66,16 @@ const DataTablesReOrder = () => {
     { value: "status", label: "Status" },
   ];
 
+  const tipoOPT = [
+    { value: "normal", label: "Normal" },
+    { value: "merge", label: "Merge" },
+  ];
+
+  const statusOPT = [
+    { value: 1, label: "Ativo" },
+    { value: 0, label: "Inativo" },
+  ];
+
   const {
     reset,
     control,
@@ -80,7 +92,31 @@ const DataTablesReOrder = () => {
       method: "GET",
       token: getToken(),
     }).then((res) => {
+      const objNome = [];
+      res.body.map((item) => {
+        objNome.push({
+          value: item.id,
+          label: item.nome,
+        });
+      });
+      setselectNome(objNome);
       setDados(res.body);
+    });
+  }, []);
+
+  useEffect(() => {
+    httpRequest(`setores`, {
+      method: "GET",
+      token: getToken(),
+    }).then((res) => {
+      const objSetor = [];
+      res.body.map((item) => {
+        objSetor.push({
+          value: item.id,
+          label: item.setor,
+        });
+      });
+      setselectSetor(objSetor);
     });
   }, []);
 
@@ -92,20 +128,34 @@ const DataTablesReOrder = () => {
   const onSubmit = (data) => {
     setDataForm(data);
     buscaFiltro(data).then((res) => {
-      setDados(res);
+      // Cria os filtros com os valores de 'nome', 'setor', 'tipo' e 'status'
+      const nomeToFilter = data.nome?.value;
+      const setorToFilter = data.setor?.value;
+      const tipoToFilter = data.tipo?.value;
+      const statusToFilter = data.status?.value; // Adicionando o filtro para 'status'
+
+      // Filtra os resultados com base em 'nome', 'setor', 'tipo' e 'status'
+      const filteredRes = res.filter((item) => {
+        const matchesNome = nomeToFilter ? nomeToFilter === item.id : true;
+        const matchesSetor = setorToFilter
+          ? setorToFilter === item.setor_id
+          : true;
+        const matchesTipo = tipoToFilter ? tipoToFilter === item.tipo : true;
+        const matchesStatus =
+          statusToFilter !== undefined ? statusToFilter == item.status : true; // Ajustado para comparar com números
+
+        return matchesNome && matchesSetor && matchesTipo && matchesStatus; // Agora inclui o filtro de 'status'
+      });
+
+      // Atualiza os dados com os resultados filtrados
+      setDados(filteredRes);
     });
   };
 
   async function buscaFiltro(data) {
     let busca = `?order=${data.ordenacao.value}&campo=${data.campo.value}`;
-    if (data.razao_social) {
-      busca = `${busca}&razao_social=${data.razao_social.value}`;
-    }
-    if (data.nome_fantasia) {
-      busca = `${busca}&nome_fantasia=${data.nome_fantasia.value}`;
-    }
-    if (data.cnpj) {
-      busca = `${busca}&cnpj=${data.cnpj.value}`;
+    if (data.nome) {
+      busca = `${busca}&nome=${data.nome.value}`;
     }
     if (data.status) {
       busca = `${busca}&status=${data.status.value}`;
@@ -157,56 +207,142 @@ const DataTablesReOrder = () => {
         </div>
       </CardHeader>
 
-<CardBody>
-  <Form onSubmit={handleSubmit(onSubmit)}>
-    <Row>
-      <Col className={`mb-1`} xl="4" md="6" sm="12">
-        <Label className="form-label" for="campo">
-          Ordenação
-        </Label>
-        <Row>
-          <Col className={`mb-1`} xl="6" md="6" sm="12">
-            <Controller
-              id="campo"
-              control={control}
-              name="campo"
-              render={({ field }) => (
-                <Select
-                  options={camposOPT}
-                  classNamePrefix="select"
-                  theme={selectThemeColors}
-                  className={"react-select"}
-                  {...field}
-                />
-              )}
-            />
-          </Col>
-          <Col className={`mb-1`} xl="6" md="6" sm="12">
-            <Controller
-              id="ordenacao"
-              control={control}
-              name="ordenacao"
-              render={({ field }) => (
-                <Select
-                  options={ordenacaoOPT}
-                  classNamePrefix="select"
-                  theme={selectThemeColors}
-                  className={"react-select"}
-                  {...field}
-                />
-              )}
-            />
-          </Col>
-        </Row>
-      </Col>
-      <Col className={`mb-1`} xl="12" md="12" sm="12">
-        <Button type="submit" color="outline-primary">
-          Filtrar
-        </Button>
-      </Col>
-    </Row>
-  </Form>
-</CardBody>
+      <CardBody>
+        <Form onSubmit={handleSubmit(onSubmit)}>
+          <Row>
+            <Col className={`mb-1`} xl="4" md="6" sm="12">
+              <Label className="form-label" for="campo">
+                Ordenação
+              </Label>
+              <Row>
+                <Col className={`mb-1`} xl="6" md="6" sm="12">
+                  <Controller
+                    id="campo"
+                    control={control}
+                    name="campo"
+                    render={({ field }) => (
+                      <Select
+                        options={camposOPT}
+                        classNamePrefix="select"
+                        theme={selectThemeColors}
+                        className={"react-select"}
+                        {...field}
+                      />
+                    )}
+                  />
+                </Col>
+                <Col className={`mb-1`} xl="6" md="6" sm="12">
+                  <Controller
+                    id="ordenacao"
+                    control={control}
+                    name="ordenacao"
+                    render={({ field }) => (
+                      <Select
+                        options={ordenacaoOPT}
+                        classNamePrefix="select"
+                        theme={selectThemeColors}
+                        className={"react-select"}
+                        {...field}
+                      />
+                    )}
+                  />
+                </Col>
+              </Row>
+            </Col>
+            <Col className={`mb-1`} xl="4" md="6" sm="12">
+              <Label className="form-label" for="nome">
+                Nome
+              </Label>
+
+              <Controller
+                id="nome"
+                control={control}
+                name="nome"
+                render={({ field }) => (
+                  <Select
+                    options={selectNome}
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    className={"react-select"}
+                    {...field}
+                    isClearable={true}
+                    value={field.value || null}
+                  />
+                )}
+              />
+            </Col>
+            <Col className={`mb-1`} xl="4" md="6" sm="12">
+              <Label className="form-label" for="nome">
+                Setor
+              </Label>
+
+              <Controller
+                id="setor"
+                control={control}
+                name="setor"
+                render={({ field }) => (
+                  <Select
+                    options={selectSetor}
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    className={"react-select"}
+                    {...field}
+                    isClearable={true}
+                    value={field.value || null}
+                  />
+                )}
+              />
+            </Col>
+            <Col className={`mb-1`} xl="3" md="6" sm="12">
+              <Label className="form-label" for="tipo">
+                Tipo
+              </Label>
+              <Controller
+                id="tipo"
+                control={control}
+                name="tipo"
+                render={({ field }) => (
+                  <Select
+                    options={tipoOPT}
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    className={"react-select"}
+                    {...field}
+                    isClearable={true}
+                    value={field.value || null}
+                  />
+                )}
+              />
+            </Col>
+            <Col className={`mb-1`} xl="3" md="6" sm="12">
+              <Label className="form-label" for="status">
+                Status
+              </Label>
+              <Controller
+                id="status"
+                control={control}
+                name="status"
+                render={({ field }) => (
+                  <Select
+                    options={statusOPT}
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    className={"react-select"}
+                    {...field}
+                    isClearable={true}
+                    value={field.value || null}
+                  />
+                )}
+              />
+            </Col>
+            <Col className={`mb-1`} xl="12" md="12" sm="12">
+              <Button type="submit" color="outline-primary">
+                Filtrar
+              </Button>
+            </Col>
+          </Row>
+        </Form>
+      </CardBody>
       <div className="react-dataTable">
         <DataTable
           noHeader
