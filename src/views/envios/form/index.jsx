@@ -190,9 +190,8 @@ if (id === undefined) {
     const setores = Usuarios.getUserStorage();
 
     let obj = [];
-
     for (let setor of setores.Setores) {
-      if (setor.Usuarios_Setores.permissoes.criaEnvio) {
+      if (setor.Usuarios_Setores.permissoes && setor.Usuarios_Setores.permissoes.criaEnvio) {
         obj.push(setor.id);
       }
     }
