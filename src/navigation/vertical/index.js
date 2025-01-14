@@ -174,6 +174,15 @@ if (conditions.some((i) => object.permissoes.includes(i))) {
     navLink: "/usuarios",
   });
 }
+conditions = ["admin", "usuarios"];
+if (conditions.some((i) => object.permissoes.includes(i))) {
+  obj[position].children.push({
+    id: "usuarios-permissoes",
+    title: "Usuários em lote",
+    icon: <Users size={20} />,
+    navLink: "/usuarios-permissoes",
+  });
+}
 conditions = ["admin", "log"];
 if (conditions.some((i) => object.permissoes.includes(i))) {
   obj[position].children.push({

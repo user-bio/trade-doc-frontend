@@ -40,6 +40,21 @@ function exibirTiposDocumentos() {
   return obj;
 }
 
+function exibirTiposDocumentosUpload() {
+  const setores = Usuarios.getUserStorage();
+
+  let obj = [];
+
+  for (let setor of setores.Setores) {
+    if (setor.Usuarios_Setores.permissoes !== null) {
+      if (setor.Usuarios_Setores.permissoes.uploadDoc) {
+        obj.push(setor.id);
+      }
+    }
+  }
+  return obj;
+}
+
 const handleConfirmCancel = (id) => {
   return MySwal.fire({
     title: "Deseja excluir?",
@@ -150,7 +165,13 @@ export const coluns = [
                 </a>
               </DropdownItem>
               <DropdownItem
-                className="w-100"
+                className={`w-100 ${
+                  exibirTiposDocumentosUpload().includes(
+                    row.Documentos_Tipo.setor_id
+                  ) || Usuarios.isAdmin()
+                    ? ""
+                    : "d-none"
+                }`}
                 onClick={() => handleConfirmCancel(row.id)}
               >
                 <Trash size={15} />
@@ -159,7 +180,13 @@ export const coluns = [
             </DropdownMenu>
           </UncontrolledDropdown>
           <Link
-            className="text-primary ms-1"
+            className={`text-primary ms-1 ${
+                  exibirTiposDocumentosUpload().includes(
+                    row.Documentos_Tipo.setor_id
+                  ) || Usuarios.isAdmin()
+                    ? ""
+                    : "d-none"
+                }`}
             title="Editar"
             to={`/documentos/form/${row.id}`}
           >

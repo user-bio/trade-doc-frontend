@@ -72,19 +72,26 @@ const DocumentosVencidos = () => {
 
       if(Usuarios.isAdmin()){
         setDados(newData);
+        // Definir a primeira aba ativa com base na condição
+        const firstTab = newData.findIndex((item) =>
+          item.documentos.some((documento) => documento.a_vencer > 0)
+        );
+        // setActiveTab(firstTab >= 0 ? firstTab.toString() : "0");
+        setActiveTab("0");
       }else{
         const idsFiltrados = exibirTiposDocumentos();
         const itensFiltrados = newData.filter((objeto) =>
           idsFiltrados.includes(objeto.setor_id)
         );
         setDados(itensFiltrados);
-      }
 
-      // Definir a primeira aba ativa com base na condição
-      const firstTab = setoresArray.findIndex((item) =>
-        item.documentos.some((documento) => documento.a_vencer > 0)
-      );
-      setActiveTab(firstTab >= 0 ? firstTab.toString() : "0");
+        // Definir a primeira aba ativa com base na condição
+        const firstTab = itensFiltrados.findIndex((item) =>
+          item.documentos.some((documento) => documento.a_vencer > 0)
+        );
+        // setActiveTab(firstTab >= 0 ? firstTab.toString() : "0");
+        setActiveTab("0");
+      }
     });
   }, []);
 

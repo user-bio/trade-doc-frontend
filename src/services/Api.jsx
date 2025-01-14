@@ -4,6 +4,7 @@ require("dotenv").config();
 //const BASE_URL = "https://bioseta-api.herokuapp.com/api/v1/";
 export const BASE_URL = "http://localhost:3003/api/v1/";
 // export const BASE_URL = "https://app-bioseta.azurewebsites.net/api/v1/";
+// export const BASE_URL = "https://app-homologacao-e9habgh6dkb8hgh4.brazilsouth-01.azurewebsites.net/api/v1/";
 
 
 export const httpRequest = async (path, config) => {

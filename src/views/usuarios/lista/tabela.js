@@ -9,10 +9,24 @@ import ReactPaginate from "react-paginate";
 import { ChevronDown } from "react-feather";
 import DataTable from "react-data-table-component";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from 'react-i18next'
+import { useTranslation } from "react-i18next";
+import { useForm, Controller } from "react-hook-form";
+import Select from "react-select";
+import { selectThemeColors } from "@utils";
 
 // ** Reactstrap Imports
-import { Card, CardHeader, CardTitle, Button, Row, Col, Label, Input } from "reactstrap";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  Form,
+  Button,
+  Row,
+  Col,
+  Label,
+  Input,
+} from "reactstrap";
 
 import { httpRequest } from "../../../services/Api";
 import { getToken } from "../../../services/Auth";
@@ -21,49 +35,52 @@ const DataTablesReOrder = () => {
   let navigate = useNavigate();
   const [data, setDados] = useState([]);
   // ** States
-  const [searchValue, setSearchValue] = useState('')
+  const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
-  const [filteredData, setFilteredData] = useState([])
+  const [filteredData, setFilteredData] = useState([]);
+  const [dataForm, setDataForm] = useState(null);
   // ** Hooks
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
-  // ** Function to handle filter
-  const handleFilter = e => {
-    const value = e.target.value
-    let updatedData = []
-    setSearchValue(value)
+  let defaultValues = {
+    tipo: null,
+    empresa: null,
+    funcionario: null,
+    campo: { value: "firs_name", label: "Nome" },
+    ordenacao: { value: "crescente", label: "Crescente" },
+  };
 
-    if (value.length) {
-      updatedData = data.filter(item => {
-        const startsWith =
-          item.first_name.toLowerCase().startsWith(value.toLowerCase()) ||
-          item.email.toLowerCase().startsWith(value.toLowerCase()) 
+  const ordenacaoOPT = [
+    { value: "decrescente", label: "Decrescente" },
+    { value: "crescente", label: "Crescente" },
+  ];
 
-        const includes =
-          item.first_name.toLowerCase().includes(value.toLowerCase()) ||
-          item.email.toLowerCase().includes(value.toLowerCase())
+  const camposOPT = [
+    { value: "id", label: "ID" },
+    { value: "first_name", label: "Nome" },
+    { value: "email", label: "E-mail" },
+  ];
 
-        if (startsWith) {
-          return startsWith
-        } else if (!startsWith && includes) {
-          return includes
-        } else return null
-      })
-      setFilteredData(updatedData)
-      setSearchValue(value)
-    }
-  }
+  const {
+    reset,
+    control,
+    setError,
+    getInputProps,
+    handleSubmit,
+    setValue,
+    register,
+    formState: { errors },
+  } = useForm({ defaultValues });
 
   useEffect(() => {
     httpRequest(`usuarios`, {
       method: "GET",
       token: getToken(),
     }).then((res) => {
-      
-        let dadosLogado = JSON.parse(atob(getToken().split(".")[1]));
+      let dadosLogado = JSON.parse(atob(getToken().split(".")[1]));
 
-        const result = res.body.filter(usuario => usuario.id != dadosLogado.id);
-        setDados(result);
+      const result = res.body.filter((usuario) => usuario.id != dadosLogado.id);
+      setDados(result);
     });
   }, []);
 
@@ -71,6 +88,29 @@ const DataTablesReOrder = () => {
   const handlePagination = (page) => {
     setCurrentPage(page.selected);
   };
+
+  const onSubmit = (data) => {
+    setDataForm(data);
+    buscaFiltro(data).then((res) => {
+      setDados(res);
+    });
+  };
+
+  async function buscaFiltro(data) {
+    let busca = `?order=${data.ordenacao.value}&campo=${data.campo.value}`;
+    if (data.first_name) {
+      busca = `${busca}&first_name=${data.first_name.value}`;
+    }
+    if (data.email) {
+      busca = `${busca}&email=${data.email.value}`;
+    }
+    let retorno = await httpRequest(`usuarios${busca}`, {
+      method: "GET",
+      token: getToken(),
+    });
+
+    return retorno.body;
+  }
 
   // ** Custom Pagination
   const CustomPagination = () => (
@@ -110,21 +150,57 @@ const DataTablesReOrder = () => {
           </Button>
         </div>
       </CardHeader>
-      <Row className='justify-content-end mx-0'>
-        <Col className='d-flex align-items-center justify-content-end mt-1' md='6' sm='12'>
-          <Label className='me-1' for='search-input-1'>
-            {t('Busca')}
-          </Label>
-          <Input
-            className='dataTable-filter mb-50'
-            type='text'
-            bsSize='sm'
-            id='search-input-1'
-            value={searchValue}
-            onChange={handleFilter}
-          />
-        </Col>
-      </Row>
+
+      <CardBody>
+        <Form onSubmit={handleSubmit(onSubmit)}>
+          <Row>
+            <Col className={`mb-1`} xl="4" md="6" sm="12">
+              <Label className="form-label" for="campo">
+                Ordenação
+              </Label>
+              <Row>
+                <Col className={`mb-1`} xl="6" md="6" sm="12">
+                  <Controller
+                    id="campo"
+                    control={control}
+                    name="campo"
+                    render={({ field }) => (
+                      <Select
+                        options={camposOPT}
+                        classNamePrefix="select"
+                        theme={selectThemeColors}
+                        className={"react-select"}
+                        {...field}
+                      />
+                    )}
+                  />
+                </Col>
+                <Col className={`mb-1`} xl="6" md="6" sm="12">
+                  <Controller
+                    id="ordenacao"
+                    control={control}
+                    name="ordenacao"
+                    render={({ field }) => (
+                      <Select
+                        options={ordenacaoOPT}
+                        classNamePrefix="select"
+                        theme={selectThemeColors}
+                        className={"react-select"}
+                        {...field}
+                      />
+                    )}
+                  />
+                </Col>
+              </Row>
+            </Col>
+            <Col className={`mb-1`} xl="12" md="12" sm="12">
+              <Button type="submit" color="outline-primary">
+                Filtrar
+              </Button>
+            </Col>
+          </Row>
+        </Form>
+      </CardBody>
       <div className="react-dataTable">
         <DataTable
           noHeader
@@ -135,7 +211,8 @@ const DataTablesReOrder = () => {
           sortIcon={<ChevronDown size={10} />}
           // paginationComponent={CustomPagination}
           paginationDefaultPage={currentPage + 1}
-          paginationRowsPerPageOptions={[10, 25, 50, 100]}
+          paginationRowsPerPageOptions={[50, 100]}
+          paginationPerPage={50}
         />
       </div>
     </Card>

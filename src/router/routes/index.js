@@ -63,6 +63,7 @@ const Download = lazy(() => import("../../views/download"))
 // Usuários
 const UsuariosLista = lazy(() => import("../../views/usuarios/lista"))
 const UsuariosForm = lazy(() => import("../../views/usuarios/form"))
+const UsuariosPermissoes = lazy(() => import("../../views/usuarios/permissoes"))
 
 const Error = lazy(() => import("../../views/Error"))
 
@@ -285,6 +286,10 @@ const Routes = [
   {
     path: "/usuarios/form/:id",
     element: <UsuariosForm />
+  },
+  {
+    path: "/usuarios-permissoes",
+    element: <UsuariosPermissoes />
   }
 ]
 

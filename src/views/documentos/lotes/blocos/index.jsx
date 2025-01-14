@@ -24,6 +24,7 @@ export function Blocos(props) {
   const [progressBar, setProgressBar] = useState(0);
   const [statusProgressBar, setStatusProgresBar] = useState(false);
   const [campos, setVampos] = useState(false);
+  const [coampos, setCoampos] = useState(false);
 
   let navigate = useNavigate();
 
@@ -37,6 +38,10 @@ export function Blocos(props) {
       if (props.dados.validadecampos) {
         setVampos(true);
       }
+      if (props.dados.compoetenciacampos) {
+        setCoampos(true);
+      }
+      console.log(props.dados);
       setFile(obj);
     }
   }, [props.dados]);
@@ -105,13 +110,6 @@ export function Blocos(props) {
     if (campos) {
       //pego os campos de funcionarios que retornam como true do checkbox na etapa anterior
       for (let item of props.dados.funcionario) {
-        if (!data[`semcompetencia_${item.value}`]) {
-          if (data[`competenciadata_${item.value}`] === undefined) {
-            validaComp = false;
-          }
-        } else {
-          data[`competenciadata_${item.value}`] = 0;
-        }
         if (!data[`semvalidade_${item.value}`]) {
           if (data[`vencimento_${item.value}`] === undefined) {
             validaAcao = false;
@@ -133,7 +131,19 @@ export function Blocos(props) {
       } else {
         validaAcao = false;
       }
+    }
 
+    if(coampos){
+      for (let item of props.dados.funcionario) {
+        if (!data[`semcompetencia_${item.value}`]) {
+          if (data[`competenciadata_${item.value}`] === undefined) {
+            validaComp = false;
+          }
+        } else {
+          data[`competenciadata_${item.value}`] = 0;
+        }
+      }
+    }else{
       validaComp = false;
       if (
         data.competenciadata !== null &&
@@ -179,6 +189,15 @@ export function Blocos(props) {
                 ? data[`vencimento_${props.dados.funcionario[i].value}`][0]
                 : null
             );
+          } else {
+            dados.append("semvalidade", data.semvalidade);
+            dados.append("dias_aviso", data.dias);
+            dados.append(
+              "validade",
+              data.vencimento.length > 0 ? data.vencimento[0] : null
+            );
+          }
+          if (coampos) {
             dados.append(
               "semcompetencia",
               data[`semcompetencia_${props.dados.funcionario[i].value}`]
@@ -190,13 +209,7 @@ export function Blocos(props) {
                 ? data[`competenciadata_${props.dados.funcionario[i].value}`][0]
                 : null
             );
-          } else {
-            dados.append("semvalidade", data.semvalidade);
-            dados.append("dias_aviso", data.dias);
-            dados.append(
-              "validade",
-              data.vencimento.length > 0 ? data.vencimento[0] : null
-            );
+          }else{
             dados.append("semcompetencia", data.semcompetencia);
             dados.append(
               "competenciadata",
@@ -241,62 +254,72 @@ export function Blocos(props) {
       >
         <Row>
           <Col lg="7">
-            <Row className={`${campos ? "d-none" : ""}`}>
+            <Row className={``}>
               <Col
-                className={`mb-1 ${selected ? "d-none" : "d-block"}`}
+                className={`${campos ? "d-none" : ""}`}
                 xl="4"
                 md="6"
                 sm="12"
               >
-                <Label className="form-label" for="dias">
-                  Dias aviso vencimento
-                </Label>
-                <Controller
-                  defaultValue="30"
-                  control={control}
-                  id="dias"
-                  name="dias"
-                  render={({ field }) => (
-                    <Input
-                      placeholder="Dias para aviso"
-                      className={classnames("form-control", {
-                        "is-invalid":
-                          data !== null &&
-                          (data.dias === null || !data.dias.length),
-                      })}
-                      {...field}
-                    />
-                  )}
-                />
+                <div className={`mb-1 ${selected ? "d-none" : "d-block"}`}>
+                  <Label className="form-label" for="dias">
+                    Dias aviso vencimento
+                  </Label>
+                  <Controller
+                    defaultValue="30"
+                    control={control}
+                    id="dias"
+                    name="dias"
+                    render={({ field }) => (
+                      <Input
+                        placeholder="Dias para aviso"
+                        className={classnames("form-control", {
+                          "is-invalid":
+                            data !== null &&
+                            (data.dias === null || !data.dias.length),
+                        })}
+                        {...field}
+                      />
+                    )}
+                  />
+                </div>
               </Col>
               <Col
-                className={`mb-1 ${selected ? "d-none" : "d-block"}`}
+                className={`${campos ? "d-none" : ""}`}
                 xl="4"
                 md="6"
                 sm="12"
               >
-                <Label className="form-label" for="vencimento">
-                  Vencimento
-                </Label>
-                <Controller
-                  control={control}
-                  id="vencimento"
-                  name="vencimento"
-                  render={({ field }) => (
-                    <Flatpickr
-                      {...field}
-                      className={classnames("form-control", {
-                        "is-invalid":
-                          data !== null &&
-                          (data.vencimento === null || !data.vencimento.length),
-                      })}
-                      id="vencimento"
-                      options={options}
-                    />
-                  )}
-                />
+                <div className={`mb-1 ${selected ? "d-none" : "d-block"}`}>
+                  <Label className="form-label" for="vencimento">
+                    Vencimento
+                  </Label>
+                  <Controller
+                    control={control}
+                    id="vencimento"
+                    name="vencimento"
+                    render={({ field }) => (
+                      <Flatpickr
+                        {...field}
+                        className={classnames("form-control", {
+                          "is-invalid":
+                            data !== null &&
+                            (data.vencimento === null ||
+                              !data.vencimento.length),
+                        })}
+                        id="vencimento"
+                        options={options}
+                      />
+                    )}
+                  />
+                </div>
               </Col>
-              <Col className={`mb-1`} xl="4" md="6" sm="12">
+              <Col
+                className={`mb-1 ${campos ? "d-none" : ""}`}
+                xl="4"
+                md="6"
+                sm="12"
+              >
                 <Label className="form-label" for="semvalidade">
                   Documento sem validade?
                 </Label>
@@ -320,32 +343,33 @@ export function Blocos(props) {
             </Row>
           </Col>
           <Col lg="5">
-            <Row className={`${campos ? "d-none" : ""}`}>
+            <Row className={`${coampos ? "d-none" : ""}`}>
               <Col
-                className={`mb-1 ${selectedcomp ? "d-none" : "d-block"}`}
                 lg="6"
               >
-                <Label className="form-label" for="competenciadata">
-                  Competência
-                </Label>
-                <Controller
-                  control={control}
-                  id="competenciadata"
-                  name="competenciadata"
-                  render={({ field }) => (
-                    <Flatpickr
-                      {...field}
-                      className={classnames("form-control", {
-                        "is-invalid":
-                          data !== null &&
-                          (data.competenciadata === null ||
-                            !data.competenciadata.length),
-                      })}
-                      id="competenciadata"
-                      options={optionsComp}
-                    />
-                  )}
-                />
+                <div className={`mb-1 ${selectedcomp ? "d-none" : "d-block"}`}>
+                  <Label className="form-label" for="competenciadata">
+                    Competência
+                  </Label>
+                  <Controller
+                    control={control}
+                    id="competenciadata"
+                    name="competenciadata"
+                    render={({ field }) => (
+                      <Flatpickr
+                        {...field}
+                        className={classnames("form-control", {
+                          "is-invalid":
+                            data !== null &&
+                            (data.competenciadata === null ||
+                              !data.competenciadata.length),
+                        })}
+                        id="competenciadata"
+                        options={optionsComp}
+                      />
+                    )}
+                  />
+                </div>
               </Col>
               <Col className={`mb-1`} lg="6">
                 <Label className="form-label" for="semcompetencia">
@@ -381,9 +405,9 @@ export function Blocos(props) {
                   {/* <Label className="form-label" for={`documento_${item.value}`}>
                     <b></b>
                   </Label> */}
-                  <div className={`mt-2 ${campos ? "" : "d-none"}`}>
+                  <div className={`mt-2 `}>
                     <Row>
-                      <Col lg="7">
+                      <Col lg="7" className={`${campos ? "" : "d-none"}`}>
                         <Row>
                           <Col
                             className={`mb-1 ${
@@ -479,7 +503,7 @@ export function Blocos(props) {
                           </Col>
                         </Row>
                       </Col>
-                      <Col lg="5">
+                      <Col lg="5" className={`${coampos ? "" : "d-none"}`}>
                         <Row>
                           <Col
                             className={`mb-1 ${

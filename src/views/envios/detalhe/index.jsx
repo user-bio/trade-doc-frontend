@@ -578,7 +578,7 @@ const EnviosDetalhe = () => {
                                         result.logs_politicas.map(
                                           (info, position) => (
                                             <div key={position}>
-                                              <a href={`https://app-bioseta.azurewebsites.net/api/v1/log/${info.arquivo}`} target="_blank">
+                                              <a href={`https://app-homologacao-e9habgh6dkb8hgh4.brazilsouth-01.azurewebsites.net/api/v1/log/${info.arquivo}`} target="_blank">
                                                 Log: {info.Contato.nome}
                                               </a>
                                             </div>

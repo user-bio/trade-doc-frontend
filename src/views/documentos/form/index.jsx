@@ -115,12 +115,14 @@ const DocumentosForm = () => {
       method: "GET",
       token: getToken(),
     }).then((res) => {
+      
+      const docsFilter = res.body.filter(item => item.status === true);
       let itensFiltrados = [];
       if (Usuarios.isAdmin()) {
-        itensFiltrados = res.body;
+        itensFiltrados = docsFilter;
       } else {
         const idsFiltrados = exibirTiposDocumentos();
-        itensFiltrados = res.body.filter((objeto) =>
+        itensFiltrados = docsFilter.filter((objeto) =>
           idsFiltrados.includes(objeto.setor_id)
         );
       }
@@ -663,11 +665,12 @@ const DocumentosForm = () => {
       token: getToken(),
     }).then((res) => {
       let itensFiltrados = [];
+      const docsFilter = res.body.filter(item => item.status === true);
       if (Usuarios.isAdmin()) {
-        itensFiltrados = res.body;
+        itensFiltrados = docsFilter;
       } else {
         const idsFiltrados = exibirTiposDocumentos();
-        itensFiltrados = res.body.filter((objeto) =>
+        itensFiltrados = docsFilter.filter((objeto) =>
           idsFiltrados.includes(objeto.setor_id)
         );
       }

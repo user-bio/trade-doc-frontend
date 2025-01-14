@@ -10,12 +10,9 @@ import {
   Button,
   Alert,
 } from "reactstrap";
-import Select from "react-select";
-import { selectThemeColors } from "@utils";
 
 // ** Custom Components
 import Breadcrumbs from "@components/breadcrumbs";
-import Cleave from "cleave.js/react";
 import { useForm, Controller } from "react-hook-form";
 import classnames from "classnames";
 import Swal from "sweetalert2";
@@ -25,6 +22,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 //components
 import isAzure from "../../../components/isAzure";
+import Tooltip from "../../../components/Tooltip";
 import { getToken } from "../../../services/Auth";
 import { httpRequest } from "../../../services/Api";
 
@@ -132,6 +130,7 @@ const UsuariosForm = () => {
   const [selectedPdf, setSelectedPdf] = useState([]);
   const [selectedUpload, setSelectedUpload] = useState([]);
   const [selectedEnvio, setSelectedEnvio] = useState([]);
+  const [selectedVer, setSelectedVer] = useState([]);
   const [selectedP, setSelectedP] = useState([]);
   const [setores, setSetores] = useState([]);
   const [permissoes, setPermissoes] = useState([]);
@@ -181,6 +180,9 @@ const UsuariosForm = () => {
                 if (setor.id === item.id) {
                   obj[index].funcao = item.Usuarios_Setores.tipo;
                   obj[index].check = true;
+                  obj[index].ver = item.Usuarios_Setores.permissoes
+                    ? item.Usuarios_Setores.permissoes.ver
+                    : false;
                   obj[index].pdPdf = item.Usuarios_Setores.permissoes
                     ? item.Usuarios_Setores.permissoes.lePDF
                     : false;
@@ -193,11 +195,16 @@ const UsuariosForm = () => {
                 }
               });
             });
+            let arrayAxVer = [];
             let arrayAxPDF = [];
             let arrayAxEnvio = [];
             let arrayAxUpload = [];
             for (var i = obj.length - 1; i >= 0; i--) {
               if (obj[i].check === true) {
+                if (obj[i].ver) {
+                  arrayAxVer.push(obj[i].id);
+                  setValue(`checkbox_d_ver_${obj[i].id}`, true);
+                }
                 if (obj[i].pdPdf) {
                   arrayAxPDF.push(obj[i].id);
                   setValue(`checkbox_d_pdf_${obj[i].id}`, true);
@@ -212,6 +219,7 @@ const UsuariosForm = () => {
                 }
               }
             }
+            setSelectedVer(arrayAxVer);
             setSelectedPdf(arrayAxPDF);
             setSelectedEnvio(arrayAxEnvio);
             setSelectedUpload(arrayAxUpload);
@@ -280,13 +288,16 @@ const UsuariosForm = () => {
       //   });
       // });
       let objetoPermissoes = [];
-      setores.forEach((setor) => { 
-        const item = dados.Setores ? dados.Setores.find((item) => setor.id === item.id) : false;
+      setores.forEach((setor) => {
+        const item = dados.Setores
+          ? dados.Setores.find((item) => setor.id === item.id)
+          : false;
 
         objetoPermissoes.push({
           id: setor.id,
           tipo: item ? item.Usuarios_Setores.tipo : "usuario",
           permissoes: {
+            ver: eval(`data.checkbox_d_ver_${setor.id}`),
             lePDF: eval(`data.checkbox_d_pdf_${setor.id}`),
             criaEnvio: eval(`data.checkbox_d_envio_${setor.id}`),
             uploadDoc: eval(`data.checkbox_d_up_${setor.id}`),
@@ -355,6 +366,26 @@ const UsuariosForm = () => {
       } else {
         checks.push(valor.id);
         setSelectedEnvio(checks);
+      }
+    }
+  }
+
+  function marcaCheckVer(valor) {
+    let checks = structuredClone(selectedVer);
+    if (checks.length === 0) {
+      checks.push(valor.id);
+      setSelectedVer(checks);
+    } else {
+      if (checks.includes(valor.id)) {
+        for (var i = checks.length - 1; i >= 0; i--) {
+          if (checks[i] === valor.id) {
+            checks.splice(i, 1);
+          }
+        }
+        setSelectedVer(checks);
+      } else {
+        checks.push(valor.id);
+        setSelectedVer(checks);
       }
     }
   }
@@ -501,7 +532,7 @@ const UsuariosForm = () => {
                   </Col>
                 </Row>
                 <Row>
-                  <Col xl="6" md="6" sm="12">
+                  <Col xl="8" md="8" sm="12">
                     <Label className="form-label" for="documentos">
                       Setores
                     </Label>
@@ -520,8 +551,7 @@ const UsuariosForm = () => {
                               {setor.setor}
                             </div>
                           </div>
-                        </div>
-                        <div className="row">
+                        </div><div className="row">
                           <div className="col">
                             <div className="demo-inline-spacing">
                               <div className="form-check form-check-inline">
@@ -543,7 +573,47 @@ const UsuariosForm = () => {
                                   for={`checkbox_d_envio_${setor.id}`}
                                   className="form-check-label"
                                 >
-                                  Criar envio
+                                  <div className="d-flex">
+                                    <span className="pe-1 font-12">Criar envio</span>
+                                    <Tooltip
+                                      id={"criar-envio-"+setor.id+index}
+                                      tooltipText="Permite a criação de novos envios na TELA DE ENVIOS"
+                                      placement="top"
+                                    />
+                                  </div>
+                                </Label>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col">
+                            <div className="demo-inline-spacing">
+                              <div className="form-check form-check-inline">
+                                <input
+                                  {...register(`checkbox_d_ver_${setor.id}`)}
+                                  className="form-check-input"
+                                  type="checkbox"
+                                  id={`checkbox_d_ver_${setor.id}`}
+                                  checked={
+                                    selectedVer.includes(setor.id)
+                                      ? true
+                                      : false
+                                  }
+                                  onChange={() => {
+                                    marcaCheckVer(setor);
+                                  }}
+                                />
+                                <Label
+                                  for={`checkbox_d_ver_${setor.id}`}
+                                  className="form-check-label"
+                                >
+                                  <div className="d-flex">
+                                    <span className="pe-1 font-12">Ver lista docs</span>
+                                    <Tooltip
+                                      id={"envio-"+setor.id+index}
+                                      tooltipText="Permite a visualização da TELA DE DOCUMENTOS"
+                                      placement="top"
+                                    />
+                                  </div>
                                 </Label>
                               </div>
                             </div>
@@ -569,7 +639,14 @@ const UsuariosForm = () => {
                                   for={`checkbox_d_up_${setor.id}`}
                                   className="form-check-label"
                                 >
-                                  Upload
+                                  <div className="d-flex">
+                                    <span className="pe-1 font-12">Upload</span>
+                                    <Tooltip
+                                      id={"upload-"+setor.id+index}
+                                      tooltipText="Permite o upload/atualização de documentos na TELA DE DOCUMENTOS"
+                                      placement="top"
+                                    />
+                                  </div>
                                 </Label>
                               </div>
                             </div>
@@ -595,7 +672,14 @@ const UsuariosForm = () => {
                                   for={`checkbox_d_pdf_${setor.id}`}
                                   className="form-check-label"
                                 >
-                                  Ver PDF
+                                  <div className="d-flex">
+                                    <span className="pe-1 font-12">Ver PDF</span>
+                                    <Tooltip
+                                      id={"pdf-"+setor.id+index}
+                                      tooltipText="Permite a visualização do documento que está no sistema, através da TELA DE DOCUMENTOS"
+                                      placement="top"
+                                    />
+                                  </div>
                                 </Label>
                               </div>
                             </div>
@@ -604,7 +688,7 @@ const UsuariosForm = () => {
                       </div>
                     ))}
                   </Col>
-                  <Col xl="6" md="6" sm="12">
+                  <Col xl="4" md="4" sm="12">
                     <Label className="form-label" for="permissoes">
                       Permissões
                     </Label>

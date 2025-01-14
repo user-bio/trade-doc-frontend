@@ -166,30 +166,32 @@ const EnviosForm = () => {
     });
   }, []);
 
+if (id === undefined) {
   useEffect(() => {
     httpRequest(`documentos/tipos`, {
       method: "GET",
       token: getToken(),
     }).then((res) => {
+      const docsFilter = res.body.filter(item => item.status === true);
       if(Usuarios.isAdmin()){
-        setDocumentos(res.body);
+        setDocumentos(docsFilter);
       }else{
         const idsFiltrados = exibirTiposDocumentos();
-        const itensFiltrados = res.body.filter((objeto) =>
+        const itensFiltrados = docsFilter.filter((objeto) =>
           idsFiltrados.includes(objeto.setor_id)
         );
         setDocumentos(itensFiltrados);
       }
     });
   }, []);
+}
 
   function exibirTiposDocumentos() {
     const setores = Usuarios.getUserStorage();
 
     let obj = [];
-
     for (let setor of setores.Setores) {
-      if (setor.Usuarios_Setores.permissoes.criaEnvio) {
+      if (setor.Usuarios_Setores.permissoes && setor.Usuarios_Setores.permissoes.criaEnvio) {
         obj.push(setor.id);
       }
     }
@@ -322,6 +324,7 @@ const EnviosForm = () => {
         method: "GET",
         token: getToken(),
       }).then((res) => {
+        console.log(res.body.dados);
         setEnvio(res.body.dados);
 
         setTipoSele(res.body.dados.tipo);
@@ -353,9 +356,12 @@ const EnviosForm = () => {
           method: "GET",
           token: getToken(),
         }).then((em) => {
-          setDocumentos(em.body);
-          let obj = em.body;
-          em.body.map((tipo, index) => {
+          
+          const docsFilter = em.body.filter(item => item.status === true);
+          setDocumentos(docsFilter);
+
+          let obj = docsFilter;
+          docsFilter.map((tipo, index) => {
             res.body.dados.Documentos_Tipos.filter(function (item) {
               if (tipo.id === item.id) {
                 obj[index].check = true;
@@ -756,7 +762,7 @@ const EnviosForm = () => {
                     sm="12"
                   >
                     <Label className="form-label" for="dataFim">
-                      Data de conslusão
+                      Data de conclusão
                     </Label>
                     <Controller
                       control={control}

@@ -83,12 +83,13 @@ const LotesForm = () => {
       method: "GET",
       token: getToken(),
     }).then((res) => {
+      const docsFilter = res.body.filter((item) => item.status === true);
       let itensFiltrados = [];
       if (Usuarios.isAdmin()) {
-        itensFiltrados = res.body;
+        itensFiltrados = docsFilter;
       } else {
         const idsFiltrados = exibirTiposDocumentos();
-        itensFiltrados = res.body.filter((objeto) =>
+        itensFiltrados = docsFilter.filter((objeto) =>
           idsFiltrados.includes(objeto.setor_id)
         );
       }
@@ -177,16 +178,20 @@ const LotesForm = () => {
     }
   };
 
-  function marcaCheck(e){
+  function marcaCheck(e) {
     const isChecked = e.target.checked;
-    if(isChecked){
-      selectFuncionarios.map((item) => {
-        setValue(`funcionario_${item.id}`, true)
-      })
-    }else{
-      selectFuncionarios.map((item) => {
-        setValue(`funcionario_${item.id}`, false)
-      })
+    if (isChecked) {
+      selectFuncionarios
+        .filter((funcionario) => funcionario.status == 1)
+        .map((item) => {
+          setValue(`funcionario_${item.id}`, true);
+        });
+    } else {
+      selectFuncionarios
+        .filter((funcionario) => funcionario.status == 1)
+        .map((item) => {
+          setValue(`funcionario_${item.id}`, false);
+        });
     }
   }
 
@@ -283,23 +288,46 @@ const LotesForm = () => {
                     />
                   </Col> */}
                   <Col className="mb-1" xl="4" md="6" sm="12">
-                    <Label className="form-label" for="empresa">
-                      Validade e competência para cada funcionário?
-                    </Label>
                     <div>
-                      <div className="form-check form-check-inline mt-1">
-                        <input
-                          {...register(`validadecampos`)}
-                          className="form-check-input"
-                          type="checkbox"
-                          id={`validadecampos`}
-                        />
-                        <Label
-                          for={`validadecampos`}
-                          className="form-check-label"
-                        >
-                          Sim
-                        </Label>
+                      <Label className="form-label" for="empresa">
+                        Validade para cada funcionário?
+                      </Label>
+                      <div>
+                        <div className="form-check form-check-inline mt-1">
+                          <input
+                            {...register(`validadecampos`)}
+                            className="form-check-input"
+                            type="checkbox"
+                            id={`validadecampos`}
+                          />
+                          <Label
+                            for={`validadecampos`}
+                            className="form-check-label"
+                          >
+                            Sim
+                          </Label>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-2">
+                      <Label className="form-label" for="empresa">
+                        Competência para cada funcionário?
+                      </Label>
+                      <div>
+                        <div className="form-check form-check-inline mt-1">
+                          <input
+                            {...register(`compoetenciacampos`)}
+                            className="form-check-input"
+                            type="checkbox"
+                            id={`compoetenciacampos`}
+                          />
+                          <Label
+                            for={`compoetenciacampos`}
+                            className="form-check-label"
+                          >
+                            Sim
+                          </Label>
+                        </div>
                       </div>
                     </div>
                   </Col>
@@ -330,31 +358,31 @@ const LotesForm = () => {
                       </div>
                     </div>
                     {selectFuncionarios
-                    .filter((funcionario) => funcionario.status == 1)
-                    .map((item, index) => (
-                      <div>
-                        <div
-                          key={index}
-                          className="form-check form-check-inline mt-1"
-                        >
-                          <input
-                            {...register(`funcionario_${item.id}`)}
-                            className="form-check-input"
-                            type="checkbox"
-                            id={`funcionario_${item.id}`}
-                            // checked={selected ? true : false}
-                            // onChange={marcaCheck}
-                          />
-
-                          <Label
-                            for={`funcionario_${item.id}`}
-                            className="form-check-label"
+                      .filter((funcionario) => funcionario.status == 1)
+                      .map((item, index) => (
+                        <div>
+                          <div
+                            key={index}
+                            className="form-check form-check-inline mt-1"
                           >
-                            {item.nome}
-                          </Label>
+                            <input
+                              {...register(`funcionario_${item.id}`)}
+                              className="form-check-input"
+                              type="checkbox"
+                              id={`funcionario_${item.id}`}
+                              // checked={selected ? true : false}
+                              // onChange={marcaCheck}
+                            />
+
+                            <Label
+                              for={`funcionario_${item.id}`}
+                              className="form-check-label"
+                            >
+                              {item.nome}
+                            </Label>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </Col>
                 </Row>
                 <div className={`text-end w-100`}>
