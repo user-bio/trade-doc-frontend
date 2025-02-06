@@ -72,36 +72,58 @@ const EnviosDetalhe = () => {
       httpRequest(`envios/${id}`, {
         method: "GET",
         token: getToken(),
-      }).then((res) => {
-        const dadosTratados = res.body.dados;
-       
-        Promise.all(
-          dadosTratados.Envio_Execucaos.map(async (item) => {
-            try {
-              const res = await httpRequest(`logs/politicas/${item.id}`, {
-                method: "GET",
-                token: getToken(),
-              });
-              item.logs_politicas = res.body; // Assumindo que a resposta relevante está em res.body
-            } catch (error) {
-              console.error('Erro ao buscar logs politicas:', error);
-              item.logs_politicas = []; // Adiciona uma chave vazia em caso de erro
-            }
-            return item;
-          })
-        ).then(updatedItems => {
-          dadosTratados.Envio_Execucaos = updatedItems;
-          setData(dadosTratados);
-          setDetalhe(dadosTratados);
-          setEmpresa(dadosTratados.Empresa);
-          setCliente(dadosTratados.Cliente);
-          setTiposVazio(dadosTratados.tiposVazios);
-        }).catch(error => {
-          console.error('Erro ao processar Envio_Execucaos:', error);
+      })
+        .then((res) => {
+          const dadosTratados = res.body.dados;
+
+          Promise.all(
+            dadosTratados.Envio_Execucaos.map(async (item) => {
+              try {
+                // Faz a requisição para obter os logs políticos
+                const res = await httpRequest(`logs/politicas/${item.id}`, {
+                  method: "GET",
+                  token: getToken(),
+                });
+
+                // Verifica os logs e associa a cada "Envio_Execucao_Vistos" com base no contato_id
+                res.body.forEach((log) => {
+                  // Encontra o Envio_Execucao_Vistos correspondente ao contato_id
+                  const visto = item.Envio_Execucao_Vistos.find(
+                    (v) => v.contato_id === log.contato_id
+                  );
+
+                  if (visto) {
+                    // Adiciona o log ao array de logs do Envio_Execucao_Vistos correspondente
+                    if (!visto.logs_politicas) {
+                      visto.logs_politicas = []; // Caso não tenha a chave logs_politicas, cria um array
+                    }
+                    visto.logs_politicas.push(log); // Adiciona o log
+                  }
+                });
+              } catch (error) {
+                console.error("Erro ao buscar logs politicas:", error);
+                item.Envio_Execucao_Vistos.forEach((visto) => {
+                  visto.logs_politicas = []; // Em caso de erro, garante que o array de logs esteja vazio
+                });
+              }
+              return item; // Retorna o item atualizado
+            })
+          )
+            .then((updatedItems) => {
+              dadosTratados.Envio_Execucaos = updatedItems;
+              setData(dadosTratados);
+              setDetalhe(dadosTratados);
+              setEmpresa(dadosTratados.Empresa);
+              setCliente(dadosTratados.Cliente);
+              setTiposVazio(dadosTratados.tiposVazios);
+            })
+            .catch((error) => {
+              console.error("Erro ao processar Envio_Execucaos:", error);
+            });
+        })
+        .catch((error) => {
+          console.error("Erro ao buscar envios:", error);
         });
-      }).catch(error => {
-        console.error('Erro ao buscar envios:', error);
-      });
     }, []);
   }
 
@@ -574,30 +596,72 @@ const EnviosDetalhe = () => {
                                         )}
                                     </td>
                                     <td>
-                                    {result.logs_politicas &&
-                                        result.logs_politicas.map(
+                                      {result.Envio_Execucao_Vistos &&
+                                        Array.isArray(
+                                          result.Envio_Execucao_Vistos
+                                        ) &&
+                                        result.Envio_Execucao_Vistos.map(
                                           (info, position) => (
                                             <div key={position}>
-                                              <a href={`https://app-homologacao-e9habgh6dkb8hgh4.brazilsouth-01.azurewebsites.net/api/v1/log/${info.arquivo}`} target="_blank">
-                                                Log: {info.Contato.nome}
-                                              </a>
+                                              {info.logs_politicas &&
+                                              info.logs_politicas.length > 0 ? (
+                                                // Exibe os logs
+                                                info.logs_politicas.map(
+                                                  (log, logPosition) => (
+                                                    <div key={logPosition}>
+                                                      <a
+                                                        href={`https://app-homologacao-e9habgh6dkb8hgh4.brazilsouth-01.azurewebsites.net/api/v1/log/${log.arquivo}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                      >
+                                                        Log: {info.Contato.nome}{" "}
+                                                        - Arquivo
+                                                      </a>
+                                                    </div>
+                                                  )
+                                                )
+                                              ) : (
+                                                // Mensagem caso não haja log
+                                                <p className="mb-0">Sem log gerado</p>
+                                              )}
                                             </div>
                                           )
                                         )}
                                     </td>
                                     <td className="text-end">
-                                      <span
-                                        className={`badge  ${
-                                          result.Envio_Execucao_Vistos.length >
-                                          0
-                                            ? "bg-success"
-                                            : "bg-danger"
-                                        }`}
-                                      >
-                                        {result.Envio_Execucao_Vistos.length > 0
-                                          ? "Visualizado"
-                                          : "Não Visualizado"}
-                                      </span>
+                                      {result.Envio_Execucao_Vistos &&
+                                        Array.isArray(
+                                          result.Envio_Execucao_Vistos
+                                        ) &&
+                                        result.Envio_Execucao_Vistos.map(
+                                          (info, position) => (
+                                            <div key={position}>
+                                              {info.logs_politicas &&
+                                              info.logs_politicas.length > 0 ? (
+                                                // Exibe os logs
+                                                info.logs_politicas.map(
+                                                  (log, logPosition) => (
+                                                    <div key={logPosition}>
+                                                      <span
+                                                        className={`badge mb1 d-block bg-success`}
+                                                      >
+                                                        Visualizado
+                                                      </span>
+                                                    </div>
+                                                  )
+                                                )
+                                              ) : (
+                                                <div>
+                                                  <span
+                                                    className={`badge mb1 d-block bg-danger`}
+                                                  >
+                                                    Não Visualizado
+                                                  </span>
+                                                </div>
+                                              )}
+                                            </div>
+                                          )
+                                        )}
                                     </td>
                                   </tr>
                                 ))
