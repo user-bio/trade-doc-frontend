@@ -39,14 +39,15 @@ const DataTablesReOrder = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [filteredData, setFilteredData] = useState([]);
   const [dataForm, setDataForm] = useState(null);
+    const [selectNome, setselectNome] = useState([]);
+    const [selectEmail, setselectEmail] = useState([]);
   // ** Hooks
   const { t } = useTranslation();
 
   let defaultValues = {
-    tipo: null,
-    empresa: null,
-    funcionario: null,
-    campo: { value: "firs_name", label: "Nome" },
+    nome: null,
+    email: null,
+    campo: { value: "first_name", label: "Nome" },
     ordenacao: { value: "crescente", label: "Crescente" },
   };
 
@@ -80,6 +81,24 @@ const DataTablesReOrder = () => {
       let dadosLogado = JSON.parse(atob(getToken().split(".")[1]));
 
       const result = res.body.filter((usuario) => usuario.id != dadosLogado.id);
+      const objUsuarios = [];
+      let last_name = "";
+      result.map((item) => {
+        last_name = item.last_name != null ? item.last_name : "";
+        objUsuarios.push({
+          value: item.id,
+          label: item.first_name + " " + last_name,
+        });
+      });
+      const objEmail = [];
+      result.map((item) => {
+        objEmail.push({
+          value: item.id,
+          label: item.email,
+        });
+      });
+      setselectEmail(objEmail);
+      setselectNome(objUsuarios);
       setDados(result);
     });
   }, []);
@@ -98,8 +117,8 @@ const DataTablesReOrder = () => {
 
   async function buscaFiltro(data) {
     let busca = `?order=${data.ordenacao.value}&campo=${data.campo.value}`;
-    if (data.first_name) {
-      busca = `${busca}&first_name=${data.first_name.value}`;
+    if (data.nome) {
+      busca = `${busca}&nome=${data.nome.value}`;
     }
     if (data.email) {
       busca = `${busca}&email=${data.email.value}`;
@@ -154,6 +173,50 @@ const DataTablesReOrder = () => {
       <CardBody>
         <Form onSubmit={handleSubmit(onSubmit)}>
           <Row>
+            <Col className={`mb-1`} xl="4" md="6" sm="12">
+              <Label className="form-label" for="nome">
+                Nome
+              </Label>
+
+              <Controller
+                id="nome"
+                control={control}
+                name="nome"
+                render={({ field }) => (
+                  <Select
+                    options={selectNome}
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    className={"react-select"}
+                    {...field}
+                    isClearable={true}
+                    value={field.value || null}
+                  />
+                )}
+              />
+            </Col>
+            <Col className={`mb-1`} xl="4" md="6" sm="12">
+              <Label className="form-label" for="email">
+                E-mail
+              </Label>
+
+              <Controller
+                id="email"
+                control={control}
+                name="email"
+                render={({ field }) => (
+                  <Select
+                    options={selectEmail}
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    className={"react-select"}
+                    {...field}
+                    isClearable={true}
+                    value={field.value || null}
+                  />
+                )}
+              />
+            </Col>
             <Col className={`mb-1`} xl="4" md="6" sm="12">
               <Label className="form-label" for="campo">
                 Ordenação

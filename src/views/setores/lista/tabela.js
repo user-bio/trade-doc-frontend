@@ -39,13 +39,16 @@ const DataTablesReOrder = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [filteredData, setFilteredData] = useState([]);
   const [dataForm, setDataForm] = useState(null);
+  const [selectSetor, setselectSetor] = useState([]);
+  const [selectGestor, setselectGestor] = useState([]);
+  const [selectResponsavel, setselectResponsavel] = useState([]);
   // ** Hooks
   const { t } = useTranslation();
 
   let defaultValues = {
-    tipo: null,
-    empresa: null,
-    funcionario: null,
+    setor: null,
+    gestor: null,
+    responsavel: null,
     campo: { value: "setor", label: "Setor" },
     ordenacao: { value: "crescente", label: "Crescente" },
   };
@@ -78,14 +81,48 @@ const DataTablesReOrder = () => {
       method: "GET",
       token: getToken(),
     }).then((res) => {
+      const objSetor = [];
+      res.body.map((item) => {
+        objSetor.push({
+          value: item.id,
+          label: item.setor,
+        });
+      });
+      setselectSetor(objSetor);
       setDados(res.body);
+    });
+  }, []);
+
+  useEffect(() => {
+    httpRequest(`usuarios`, {
+      method: "GET",
+      token: getToken(),
+    }).then((res) => {
+      const objUsuarios = [];
+      res.body.map((item) => {
+        objUsuarios.push({
+          value: item.id,
+          label: item.first_name,
+        });
+      });
+      setselectGestor(objUsuarios);
+      setselectResponsavel(objUsuarios);
     });
   }, []);
 
   const onSubmit = (data) => {
     setDataForm(data);
     buscaFiltro(data).then((res) => {
-      setDados(res);
+      let gestor = data.gestor;
+      let resultado = [];
+      if (gestor) {
+        resultado = res.filter((item) =>
+          item.gestores.some((g) => g.id === gestor.value)
+        );
+      } else {
+        resultado = res;
+      }
+      setDados(resultado);
     });
   };
 
@@ -158,6 +195,72 @@ const DataTablesReOrder = () => {
       <CardBody>
         <Form onSubmit={handleSubmit(onSubmit)}>
           <Row>
+            <Col className={`mb-1`} xl="4" md="6" sm="12">
+              <Label className="form-label" for="setor">
+                Setor
+              </Label>
+
+              <Controller
+                id="setor"
+                control={control}
+                name="setor"
+                render={({ field }) => (
+                  <Select
+                    options={selectSetor}
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    className={"react-select"}
+                    {...field}
+                    isClearable={true}
+                    value={field.value || null}
+                  />
+                )}
+              />
+            </Col>
+            <Col className={`mb-1`} xl="4" md="6" sm="12">
+              <Label className="form-label" for="gestor">
+                Gestor
+              </Label>
+
+              <Controller
+                id="gestor"
+                control={control}
+                name="gestor"
+                render={({ field }) => (
+                  <Select
+                    options={selectGestor}
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    className={"react-select"}
+                    {...field}
+                    isClearable={true}
+                    value={field.value || null}
+                  />
+                )}
+              />
+            </Col>
+            <Col className={`mb-1`} xl="4" md="6" sm="12">
+              <Label className="form-label" for="responsavel">
+                Responsável
+              </Label>
+
+              <Controller
+                id="responsavel"
+                control={control}
+                name="responsavel"
+                render={({ field }) => (
+                  <Select
+                    options={selectResponsavel}
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    className={"react-select"}
+                    {...field}
+                    isClearable={true}
+                    value={field.value || null}
+                  />
+                )}
+              />
+            </Col>
             <Col className={`mb-1`} xl="4" md="6" sm="12">
               <Label className="form-label" for="campo">
                 Ordenação
