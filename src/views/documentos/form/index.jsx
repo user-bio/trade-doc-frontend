@@ -187,7 +187,7 @@ const DocumentosForm = () => {
       method: "GET",
       token: getToken(),
     }).then((res) => {
-      setListaFuncionarios(res.body.Funcionarios);
+      // setListaFuncionarios(res.body.Funcionarios);
       const objFuncionarios = [];
       res.body.Funcionarios
       .filter((funcionario) => funcionario.status == 1)
@@ -197,7 +197,10 @@ const DocumentosForm = () => {
           label: funcionario.nome,
         });
       });
+      let listaFuncionariosFiltrada = res.body.Funcionarios
+      .filter((funcionario) => funcionario.status == 1);
       setselectFuncionarios(objFuncionarios);
+      setListaFuncionarios(listaFuncionariosFiltrada);
     });
   }
 
