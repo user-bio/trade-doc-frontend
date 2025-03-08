@@ -578,93 +578,97 @@ const EnviosDetalhe = () => {
                           </thead>
                           <tbody>
                             {data !== null
-                              ? data.Envio_Execucaos.map((result, index) => (
-                                  <tr key={index}>
-                                    <td>{dataPTBR(result.createdAt)}</td>
-                                    <td>
-                                      {result.Envio_Execucao_Vistos &&
-                                        Array.isArray(
-                                          result.Envio_Execucao_Vistos
-                                        ) &&
-                                        result.Envio_Execucao_Vistos.map(
-                                          (info, position) => (
-                                            <div key={position}>
-                                              {info.Contato &&
-                                                info.Contato.email}
-                                            </div>
-                                          )
-                                        )}
-                                    </td>
-                                    <td>
-                                      {result.Envio_Execucao_Vistos &&
-                                        Array.isArray(
-                                          result.Envio_Execucao_Vistos
-                                        ) &&
-                                        result.Envio_Execucao_Vistos.map(
-                                          (info, position) => (
-                                            <div key={position}>
-                                              {info.logs_politicas &&
-                                              info.logs_politicas.length > 0 ? (
-                                                // Exibe os logs
-                                                info.logs_politicas.map(
-                                                  (log, logPosition) => (
-                                                    <div key={logPosition}>
-                                                      <a
-                                                        href={`https://app-homologacao-e9habgh6dkb8hgh4.brazilsouth-01.azurewebsites.net/api/v1/log/${log.arquivo}`}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                      >
-                                                        Log: {info.Contato.nome}{" "}
-                                                        - Arquivo
-                                                      </a>
-                                                    </div>
+                              ? [...data.Envio_Execucaos]
+                                  .reverse()
+                                  .map((result, index) => (
+                                    <tr key={index}>
+                                      <td>{dataPTBR(result.createdAt)}</td>
+                                      <td>
+                                        {result.Envio_Execucao_Vistos &&
+                                          Array.isArray(
+                                            result.Envio_Execucao_Vistos
+                                          ) &&
+                                          result.Envio_Execucao_Vistos.map(
+                                            (info, position) => (
+                                              <div key={position}>
+                                                {info.Contato &&
+                                                  info.Contato.email}
+                                              </div>
+                                            )
+                                          )}
+                                      </td>
+                                      <td>
+                                        {result.Envio_Execucao_Vistos &&
+                                          Array.isArray(
+                                            result.Envio_Execucao_Vistos
+                                          ) &&
+                                          result.Envio_Execucao_Vistos.map(
+                                            (info, position) => (
+                                              <div key={position}>
+                                                {info.logs_politicas &&
+                                                info.logs_politicas.length >
+                                                  0 ? (
+                                                  info.logs_politicas.map(
+                                                    (log, logPosition) => (
+                                                      <div key={logPosition}>
+                                                        <a
+                                                          href={`https://app-homologacao-e9habgh6dkb8hgh4.brazilsouth-01.azurewebsites.net/api/v1/log/${log.arquivo}`}
+                                                          target="_blank"
+                                                          rel="noopener noreferrer"
+                                                        >
+                                                          Log:{" "}
+                                                          {info.Contato.nome} -
+                                                          Arquivo
+                                                        </a>
+                                                      </div>
+                                                    )
                                                   )
-                                                )
-                                              ) : (
-                                                // Mensagem caso não haja log
-                                                <p className="mb-0">Sem log gerado</p>
-                                              )}
-                                            </div>
-                                          )
-                                        )}
-                                    </td>
-                                    <td className="text-end">
-                                      {result.Envio_Execucao_Vistos &&
-                                        Array.isArray(
-                                          result.Envio_Execucao_Vistos
-                                        ) &&
-                                        result.Envio_Execucao_Vistos.map(
-                                          (info, position) => (
-                                            <div key={position}>
-                                              {info.logs_politicas &&
-                                              info.logs_politicas.length > 0 ? (
-                                                // Exibe os logs
-                                                info.logs_politicas.map(
-                                                  (log, logPosition) => (
-                                                    <div key={logPosition}>
-                                                      <span
-                                                        className={`badge mb1 d-block bg-success`}
-                                                      >
-                                                        Visualizado
-                                                      </span>
-                                                    </div>
+                                                ) : (
+                                                  <p className="mb-0">
+                                                    Sem log gerado
+                                                  </p>
+                                                )}
+                                              </div>
+                                            )
+                                          )}
+                                      </td>
+                                      <td className="text-end">
+                                        {result.Envio_Execucao_Vistos &&
+                                          Array.isArray(
+                                            result.Envio_Execucao_Vistos
+                                          ) &&
+                                          result.Envio_Execucao_Vistos.map(
+                                            (info, position) => (
+                                              <div key={position}>
+                                                {info.logs_politicas &&
+                                                info.logs_politicas.length >
+                                                  0 ? (
+                                                  info.logs_politicas.map(
+                                                    (log, logPosition) => (
+                                                      <div key={logPosition}>
+                                                        <span
+                                                          className={`badge mb1 d-block bg-success`}
+                                                        >
+                                                          Visualizado
+                                                        </span>
+                                                      </div>
+                                                    )
                                                   )
-                                                )
-                                              ) : (
-                                                <div>
-                                                  <span
-                                                    className={`badge mb1 d-block bg-danger`}
-                                                  >
-                                                    Não Visualizado
-                                                  </span>
-                                                </div>
-                                              )}
-                                            </div>
-                                          )
-                                        )}
-                                    </td>
-                                  </tr>
-                                ))
+                                                ) : (
+                                                  <div>
+                                                    <span
+                                                      className={`badge mb1 d-block bg-danger`}
+                                                    >
+                                                      Não Visualizado
+                                                    </span>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            )
+                                          )}
+                                      </td>
+                                    </tr>
+                                  ))
                               : ""}
                           </tbody>
                         </table>
