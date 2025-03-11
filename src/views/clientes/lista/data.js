@@ -6,6 +6,7 @@ import {
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
+  Badge
 } from "reactstrap";
 
 import Swal from "sweetalert2";
@@ -82,6 +83,14 @@ export const coluns = [
     sortable: true,
     minWidth: "250px",
     selector: (row) => formataCNPJ(row.cnpj),
+  },
+  {
+    name: "Status",
+    reorder: true,
+    sortable: true,
+    minWidth: "50px",
+    color: 'light-warning',
+    selector: (row) => { if(row.status){ return <Badge color="success"pill>Ativo</Badge>; }else{ return <Badge color="danger"pill>Inativo</Badge>; } },
   },
   {
     name: "Actions",

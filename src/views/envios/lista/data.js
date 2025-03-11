@@ -69,7 +69,7 @@ export const coluns = [
     sortable: false,
     maxWidth: "120px",
     color: 'light-warning',
-    selector: (row) => { if(row.aprovacao == "aprovada" || row.aprovacao == "instantanea"){ return <Badge color="success"pill>Aprovado</Badge>; }else if(row.aprovacao == "reprovada"){ return <Badge color="danger"pill>Reprovado</Badge>; }else{ return <Badge color="danger"pill>Pendente</Badge>; } },
+    selector: (row) => { if(row.aprovacao == "aprovada" || row.aprovacao == "instantanea"){ return <Badge color="success"pill>Aprovado</Badge>; }else if(row.aprovacao == "reprovada"){ return <Badge color="danger"pill>Reprovado</Badge>; }else if(row.aprovacao == "inativado"){ return <Badge color="danger"pill>Inativado</Badge>; }else{ return <Badge color="danger"pill>Pendente</Badge>; } },
   },
   {
     name: "Cliente",

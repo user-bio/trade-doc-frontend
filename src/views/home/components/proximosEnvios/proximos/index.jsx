@@ -9,13 +9,22 @@ import ReactPaginate from "react-paginate";
 import { ChevronDown } from "react-feather";
 import DataTable from "react-data-table-component";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from 'react-i18next'
+import { useTranslation } from "react-i18next";
 
 // ** Reactstrap Imports
-import { Card, CardHeader, CardTitle, Button, Row, Col, Label, Input } from "reactstrap";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  Button,
+  Row,
+  Col,
+  Label,
+  Input,
+} from "reactstrap";
 
 // import { httpRequest } from "../../../../../services/Api";
-import { httpRequest } from "../../../../../services/Api"
+import { httpRequest } from "../../../../../services/Api";
 import { getToken } from "../../../../../services/Auth";
 import Usuarios from "../../../../../services/Usuarios";
 
@@ -23,11 +32,11 @@ const TableProximos = () => {
   let navigate = useNavigate();
   const [data, setDados] = useState([]);
   // ** States
-  const [searchValue, setSearchValue] = useState('')
+  const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
-  const [filteredData, setFilteredData] = useState([])
+  const [filteredData, setFilteredData] = useState([]);
   // ** Hooks
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const unificarRegistrosDuplicados = (registros) => {
     const registroUnificado = registros.reduce((acc, current) => {
@@ -37,7 +46,7 @@ const TableProximos = () => {
       }
       return acc;
     }, {});
-  
+
     return Object.values(registroUnificado);
   };
 
@@ -46,8 +55,10 @@ const TableProximos = () => {
     let obj = [];
 
     for (let setor of setores.Setores) {
-      if (setor.Usuarios_Setores.permissoes.criaEnvio && setor.Usuarios_Setores.permissoes !== undefined) {
-        obj.push(setor.id);
+      if (setor.Usuarios_Setores.permissoes !== null) {
+        if (setor.Usuarios_Setores.permissoes.criaEnvio) {
+          obj.push(setor.id);
+        }
       }
     }
     return obj;
@@ -57,11 +68,11 @@ const TableProximos = () => {
     httpRequest(`dashboard/envios?aprovacao=aprovada`, {
       method: "GET",
       token: getToken(),
-    }).then(res => {        
-      if(Usuarios.isAdmin()){
+    }).then((res) => {
+      if (Usuarios.isAdmin()) {
         const registrosUnificados = unificarRegistrosDuplicados(res.body);
         setDados(registrosUnificados);
-      }else{
+      } else {
         const idsFiltrados = exibirTiposDocumentos();
         const itensFiltrados = res.body.filter((objeto) =>
           idsFiltrados.includes(objeto.setor_id)
@@ -69,7 +80,7 @@ const TableProximos = () => {
         const registrosUnificados = unificarRegistrosDuplicados(itensFiltrados);
         setDados(registrosUnificados);
       }
-    })
+    });
   }, []);
 
   // ** Function to handle Pagination

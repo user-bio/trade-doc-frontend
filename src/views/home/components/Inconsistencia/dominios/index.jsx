@@ -46,7 +46,7 @@ const TableDominios = () => {
     let obj = [];
 
     for (let setor of setores.Setores) {
-      if (setor.Usuarios_Setores.permissoes.criaEnvio && setor.Usuarios_Setores.permissoes !== undefined) {
+      if (setor.Usuarios_Setores.permissoes !== null && setor.Usuarios_Setores.permissoes.criaEnvio) {
         obj.push(setor.id);
       }
     }

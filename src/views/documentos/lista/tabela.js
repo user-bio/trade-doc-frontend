@@ -51,6 +51,7 @@ const DataTablesReOrder = () => {
   const [dataForm, setDataForm] = useState(null);
 
   const [selectTipo, setselectTipo] = useState([]);
+  const [selectSetor, setselectSetor] = useState([]);
   const [selectEmpresas, setselectEmpresas] = useState([]);
   const [selectFuncionarios, setselectFuncionarios] = useState([]);
   // ** Hooks
@@ -174,8 +175,10 @@ const DataTablesReOrder = () => {
     let obj = [];
 
     for (let setor of setores.Setores) {
-      if (setor.Usuarios_Setores.permissoes.uploadDoc) {
-        obj.push(setor.id);
+      if (setor.Usuarios_Setores.permissoes !== null) {
+        if (setor.Usuarios_Setores.permissoes.uploadDoc || setor.Usuarios_Setores.permissoes.ver) {
+          obj.push(setor.id);
+        }
       }
     }
     return obj;
@@ -203,6 +206,32 @@ const DataTablesReOrder = () => {
         });
       });
       setselectTipo(objTipos);
+    });
+  }, []);
+  
+  useEffect(() => {
+    httpRequest(`setores`, {
+      method: "GET",
+      token: getToken(),
+    }).then((res) => {
+      let itensFiltrados = res.body;
+      // let itensFiltrados = [];
+      // if (Usuarios.isAdmin()) {
+      //   itensFiltrados = res.body;
+      // } else {
+      //   const idsFiltrados = exibirTiposDocumentos();
+      //   itensFiltrados = res.body.filter((objeto) =>
+      //     idsFiltrados.includes(objeto.setor_id)
+      //   );
+      // }
+      const objTipos = [];
+      itensFiltrados.map((item) => {
+        objTipos.push({
+          value: item.id,
+          label: item.setor,
+        });
+      });
+      setselectSetor(objTipos);
     });
   }, []);
 
@@ -272,21 +301,25 @@ const DataTablesReOrder = () => {
     if (data.periodo_2) {
       busca = `${busca}&data_final=${converterData(data.periodo_2)}`;
     }
+    if (data.setor) {
+      busca = `${busca}&setor=${data.setor.value}`;
+    }
     let retorno = await httpRequest(`documentos${busca}`, {
       method: "GET",
       token: getToken(),
     });
 
-    if(Usuarios.isAdmin()){
+    retorno.body = retorno.body.filter(item => item.Documentos_Tipo !== null);
+    
+    if (Usuarios.isAdmin()) {
       return retorno.body;
-    }else{
+    } else {
       const idsFiltrados = exibirTiposDocumentos();
       const itensFiltrados = retorno.body.filter((objeto) =>
         idsFiltrados.includes(objeto.Documentos_Tipo.setor_id)
       );
       return itensFiltrados;
     }
-
   }
 
   // ** Function to handle Pagination
@@ -465,12 +498,12 @@ const DataTablesReOrder = () => {
                 </Col>
               </Row>
             </Col>
-            <Col className={`mb-1`} xl="4" md="6" sm="12">
+            <Col className={`mb-1`} xl="2" md="6" sm="12">
               <Label className="form-label" for="vencimento">
                 Vencimento
               </Label>
               <Row>
-                <Col className={`mb-1`} xl="6" md="6" sm="12">
+                <Col className={`mb-1`}>
                   <Controller
                     defaultValue=""
                     id="vencimento"
@@ -493,6 +526,28 @@ const DataTablesReOrder = () => {
                   />
                 </Col>
               </Row>
+            </Col>
+            <Col className={`mb-1`} xl="2" md="6" sm="12">
+              <Label className="form-label" for="setor">
+                Setor
+              </Label>
+
+              <Controller
+                id="setor"
+                control={control}
+                name="setor"
+                render={({ field }) => (
+                  <Select
+                    options={selectSetor}
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    className={"react-select"}
+                    {...field}
+                    isClearable={true}
+                    value={field.value || null}
+                  />
+                )}
+              />
             </Col>
             <Col className={`mb-1`} xl="4" md="6" sm="12">
               <Label className="form-label" for="campo">
@@ -565,7 +620,7 @@ const DataTablesReOrder = () => {
           pagination
           data={searchValue.length ? filteredData : data}
           columns={coluns}
-          className="react-dataTable"
+          className="react-dataTable padding-bottom-80"
           sortIcon={<ChevronDown size={10} />}
           // paginationComponent={CustomPagination}
           paginationDefaultPage={currentPage + 1}

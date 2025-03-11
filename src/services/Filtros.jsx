@@ -13,3 +13,11 @@ export const setEnvioFIltro = (dados) => localStorage.setItem(ENVIO_KEY, JSON.st
 export function getEnvioFIltro() {
   return JSON.parse(localStorage.getItem(ENVIO_KEY));
 }
+
+export const LOGS_KEY = "@bioseta-filtros-logs";
+export const isLogsFIltro = () => localStorage.getItem(LOGS_KEY) !== null;
+export const setLogsFIltro = (dados) => localStorage.setItem(LOGS_KEY, JSON.stringify(dados));
+
+export function getLogsFIltro() {
+  return JSON.parse(localStorage.getItem(LOGS_KEY));
+}

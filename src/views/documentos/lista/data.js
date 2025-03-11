@@ -1,6 +1,13 @@
 import React from "react";
 
-import { MoreVertical, Edit, Users, Trash, CheckCircle, Archive } from "react-feather";
+import {
+  MoreVertical,
+  Edit,
+  Users,
+  Trash,
+  CheckCircle,
+  Archive,
+} from "react-feather";
 import {
   UncontrolledDropdown,
   DropdownToggle,
@@ -24,13 +31,29 @@ function exibirTiposDocumentos() {
   let obj = [];
 
   for (let setor of setores.Setores) {
-    if (setor.Usuarios_Setores.permissoes !== undefined && setor.Usuarios_Setores.permissoes.lePDF) {
-      obj.push(setor.id);
+    if (setor.Usuarios_Setores.permissoes !== null) {
+      if (setor.Usuarios_Setores.permissoes.lePDF) {
+        obj.push(setor.id);
+      }
     }
   }
   return obj;
 }
 
+function exibirTiposDocumentosUpload() {
+  const setores = Usuarios.getUserStorage();
+
+  let obj = [];
+
+  for (let setor of setores.Setores) {
+    if (setor.Usuarios_Setores.permissoes !== null) {
+      if (setor.Usuarios_Setores.permissoes.uploadDoc) {
+        obj.push(setor.id);
+      }
+    }
+  }
+  return obj;
+}
 
 const handleConfirmCancel = (id) => {
   return MySwal.fire({
@@ -124,15 +147,31 @@ export const coluns = [
             </DropdownToggle>
             <DropdownMenu end>
               <DropdownItem
-                className={`w-100 ${exibirTiposDocumentos().includes(row.Documentos_Tipo.setor_id) || Usuarios.isAdmin() ? "" : "d-none"}`}
+                className={`w-100 ${
+                  exibirTiposDocumentos().includes(
+                    row.Documentos_Tipo.setor_id
+                  ) || Usuarios.isAdmin()
+                    ? ""
+                    : "d-none"
+                }`}
               >
-                <a className={`text-info`} href={`${BASE_URL}file/pdf/${row.arquivo}`} target="_blank">
+                <a
+                  className={`text-info`}
+                  href={`${BASE_URL}file/pdf/${row.arquivo}`}
+                  target="_blank"
+                >
                   <Archive size={15} />
                   <span className="align-middle ms-50">Abrir PDF</span>
                 </a>
               </DropdownItem>
               <DropdownItem
-                className="w-100"
+                className={`w-100 ${
+                  exibirTiposDocumentosUpload().includes(
+                    row.Documentos_Tipo.setor_id
+                  ) || Usuarios.isAdmin()
+                    ? ""
+                    : "d-none"
+                }`}
                 onClick={() => handleConfirmCancel(row.id)}
               >
                 <Trash size={15} />
@@ -141,7 +180,13 @@ export const coluns = [
             </DropdownMenu>
           </UncontrolledDropdown>
           <Link
-            className="text-primary ms-1"
+            className={`text-primary ms-1 ${
+                  exibirTiposDocumentosUpload().includes(
+                    row.Documentos_Tipo.setor_id
+                  ) || Usuarios.isAdmin()
+                    ? ""
+                    : "d-none"
+                }`}
             title="Editar"
             to={`/documentos/form/${row.id}`}
           >

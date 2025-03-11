@@ -106,18 +106,6 @@ const DocumentosForm = () => {
   let navigate = useNavigate();
   let { id } = useParams();
 
-  function exibirTiposDocumentos() {
-    const setores = Usuarios.getUserStorage();
-
-    let obj = [];
-
-    for (let setor of setores.Setores) {
-      if (setor.Usuarios_Setores.permissoes.criaEnvio) {
-        obj.push(setor.id);
-      }
-    }
-    return obj;
-  }
 
   useEffect(() => {
     getTiposNormal();
@@ -127,12 +115,14 @@ const DocumentosForm = () => {
       method: "GET",
       token: getToken(),
     }).then((res) => {
+      
+      const docsFilter = res.body.filter(item => item.status === true);
       let itensFiltrados = [];
       if (Usuarios.isAdmin()) {
-        itensFiltrados = res.body;
+        itensFiltrados = docsFilter;
       } else {
         const idsFiltrados = exibirTiposDocumentos();
-        itensFiltrados = res.body.filter((objeto) =>
+        itensFiltrados = docsFilter.filter((objeto) =>
           idsFiltrados.includes(objeto.setor_id)
         );
       }
@@ -197,15 +187,20 @@ const DocumentosForm = () => {
       method: "GET",
       token: getToken(),
     }).then((res) => {
-      setListaFuncionarios(res.body.Funcionarios);
+      // setListaFuncionarios(res.body.Funcionarios);
       const objFuncionarios = [];
-      res.body.Funcionarios.map((funcionario) => {
+      res.body.Funcionarios
+      .filter((funcionario) => funcionario.status == 1)
+      .map((funcionario) => {
         objFuncionarios.push({
           value: funcionario.id,
           label: funcionario.nome,
         });
       });
+      let listaFuncionariosFiltrada = res.body.Funcionarios
+      .filter((funcionario) => funcionario.status == 1);
       setselectFuncionarios(objFuncionarios);
+      setListaFuncionarios(listaFuncionariosFiltrada);
     });
   }
 
@@ -215,98 +210,107 @@ const DocumentosForm = () => {
       httpRequest(`documentos/${id}`, {
         method: "GET",
         token: getToken(),
-      }).then((res) => {
-        let tipo = res.body.Documentos_Tipo.tipo;
-        if (tipo === "merge") {
-          setValue("tipo_upload", {
-            value: "merge",
-            label: "Unificado",
-          });
-          setTipoUpload(true);
-          setFileBlock(true);
-          // getTiposMerge();
-          setMergeAtivo(true);
+      })
+        .then((res) => {
 
-          //pegar funcionarios empresa - res.body.empresa_id
-          httpRequest(`empresas/${res.body.empresa_id}`, {
-            method: "GET",
-            token: getToken(),
-          }).then((empresa) => {
-            setListaFuncionarios(empresa.body.Funcionarios);
-            let objFunc = empresa.body.Funcionarios;
-            objFunc.map((funcionario, index) => {
-              res.body.funcionariosMerges.filter(function (item) {
-                if (funcionario.id === item.id) {
-                  objFunc[index].check = true;
-                }
-              });
+          if (!exibirTiposDocumentos().includes(res.body.Documentos_Tipo.setor_id) && !Usuarios.isAdmin()) {
+            navigate(`/`);
+          }
+          
+          let tipo = res.body.Documentos_Tipo.tipo;
+          if (tipo === "merge") {
+            setValue("tipo_upload", {
+              value: "merge",
+              label: "Unificado",
             });
-            let arrayAx = [];
-            for (var i = objFunc.length - 1; i >= 0; i--) {
-              if (objFunc[i].check === true) {
-                arrayAx.push(objFunc[i].id);
-                setValue(`checkbox_f_${objFunc[i].id}`, true);
+            setTipoUpload(true);
+            setFileBlock(true);
+            // getTiposMerge();
+            setMergeAtivo(true);
+
+            //pegar funcionarios empresa - res.body.empresa_id
+            httpRequest(`empresas/${res.body.empresa_id}`, {
+              method: "GET",
+              token: getToken(),
+            }).then((empresa) => {
+              setListaFuncionarios(empresa.body.Funcionarios);
+              let objFunc = empresa.body.Funcionarios;
+              objFunc.map((funcionario, index) => {
+                res.body.funcionariosMerges.filter(function (item) {
+                  if (funcionario.id === item.id) {
+                    objFunc[index].check = true;
+                  }
+                });
+              });
+              let arrayAx = [];
+              for (var i = objFunc.length - 1; i >= 0; i--) {
+                if (objFunc[i].check === true) {
+                  arrayAx.push(objFunc[i].id);
+                  setValue(`checkbox_f_${objFunc[i].id}`, true);
+                }
               }
-            }
-            setSelectedF(arrayAx);
+              setSelectedF(arrayAx);
+            });
+            httpRequest(`documentos/tipos/${res.body.Documentos_Tipo.id}`, {
+              method: "GET",
+              token: getToken(),
+            }).then((merge) => {
+              if (
+                merge.body.instrucoes !== null &&
+                merge.body.instrucoes !== undefined &&
+                merge.body.instrucoes !== ""
+              ) {
+                setTipoInformacao(true);
+                setTipoInfo(res.body.instrucoes);
+              } else {
+                setTipoInformacao(false);
+                setTipoInfo(null);
+              }
+              setInfoMerge(merge.body.Documentos_Merges);
+            });
+          }
+          setSelected(res.body.semvalidade);
+          setSelectedcomp(res.body.semcompetencia);
+          setValue("semvalidade", res.body.semvalidade);
+          setValue("semcompetencia", res.body.semcompetencia);
+          setValue("documento", ["update"]);
+          setValue(
+            "vencimento",
+            res.body.validade !== null ? [res.body.validade] : []
+          );
+          setValue(
+            "competenciadata",
+            res.body.competenciadata !== null ? [res.body.competenciadata] : []
+          );
+          setValue("dias", [res.body.dias_aviso]);
+          if (res.body.funcionario_id) {
+            setValue("funcionario", {
+              value: res.body.funcionario_id,
+              label: res.body.Funcionario.nome,
+            });
+          }
+          setValue("empresa", {
+            value: res.body.empresa_id,
+            label: res.body.Empresa.nome_fantasia,
           });
-          httpRequest(`documentos/tipos/${res.body.Documentos_Tipo.id}`, {
-            method: "GET",
-            token: getToken(),
-          }).then((merge) => {
-            if (
-              merge.body.instrucoes !== null &&
-              merge.body.instrucoes !== undefined &&
-              merge.body.instrucoes !== ""
-            ) {
-              setTipoInformacao(true);
-              setTipoInfo(res.body.instrucoes);
-            } else {
-              setTipoInformacao(false);
-              setTipoInfo(null);
-            }
-            setInfoMerge(merge.body.Documentos_Merges);
+          setValue("tipo", {
+            value: res.body.documentos_tipo_id,
+            label: res.body.Documentos_Tipo.nome,
           });
-        }
-        setSelected(res.body.semvalidade);
-        setSelectedcomp(res.body.semcompetencia);
-        setValue("semvalidade", res.body.semvalidade);
-        setValue("semcompetencia", res.body.semcompetencia);
-        setValue("documento", ["update"]);
-        setValue(
-          "vencimento",
-          res.body.validade !== null ? [res.body.validade] : []
-        );
-        setValue(
-          "competenciadata",
-          res.body.competenciadata !== null ? [res.body.competenciadata] : []
-        );
-        setValue("dias", [res.body.dias_aviso]);
-        if (res.body.funcionario_id) {
-          setValue("funcionario", {
-            value: res.body.funcionario_id,
-            label: res.body.Funcionario.nome,
-          });
-        }
-        setValue("empresa", {
-          value: res.body.empresa_id,
-          label: res.body.Empresa.nome_fantasia,
+          if (
+            res.body.Documentos_Tipo.instrucoes !== null &&
+            res.body.Documentos_Tipo.instrucoes !== undefined
+          ) {
+            setTipoInformacao(true);
+            setTipoInfo(res.body.Documentos_Tipo.instrucoes);
+          } else {
+            setTipoInformacao(false);
+            setTipoInfo(null);
+          }
+        })
+        .catch((error) => {
+          navigate(`/`);
         });
-        setValue("tipo", {
-          value: res.body.documentos_tipo_id,
-          label: res.body.Documentos_Tipo.nome,
-        });
-        if (
-          res.body.Documentos_Tipo.instrucoes !== null &&
-          res.body.Documentos_Tipo.instrucoes !== undefined
-        ) {
-          setTipoInformacao(true);
-          setTipoInfo(res.body.Documentos_Tipo.instrucoes);
-        } else {
-          setTipoInformacao(false);
-          setTipoInfo(null);
-        }
-      });
     }, []);
   } else {
     const location = useLocation();
@@ -354,7 +358,6 @@ const DocumentosForm = () => {
 
   const onSubmit = (data) => {
     setData(data);
-    console.log(data);
 
     let documentoTrue = false;
     if (
@@ -552,7 +555,6 @@ const DocumentosForm = () => {
           })
             .then((res) => {
               setRetornoMerge(res.body);
-              console.log(res.body);
               MySwal.fire({
                 icon: "success",
                 title: "Sucesso!",
@@ -666,11 +668,12 @@ const DocumentosForm = () => {
       token: getToken(),
     }).then((res) => {
       let itensFiltrados = [];
+      const docsFilter = res.body.filter(item => item.status === true);
       if (Usuarios.isAdmin()) {
-        itensFiltrados = res.body;
+        itensFiltrados = docsFilter;
       } else {
         const idsFiltrados = exibirTiposDocumentos();
-        itensFiltrados = res.body.filter((objeto) =>
+        itensFiltrados = docsFilter.filter((objeto) =>
           idsFiltrados.includes(objeto.setor_id)
         );
       }
@@ -722,6 +725,27 @@ const DocumentosForm = () => {
       });
       setSelectedF(arrayAx);
     }
+  }
+
+  // verifica permissoes
+  function exibirTiposDocumentos() {
+    const setores = Usuarios.getUserStorage();
+
+    let obj = [];
+
+    for (let setor of setores.Setores) {
+      if (setor.Usuarios_Setores.permissoes !== null) {
+        if (setor.Usuarios_Setores.permissoes.uploadDoc) {
+          obj.push(setor.id);
+        }
+      }
+    }
+    return obj;
+  }
+  let permissoes = exibirTiposDocumentos();
+
+  if (permissoes.length === 0 && !Usuarios.isAdmin()) {
+    navigate(`/`);
   }
 
   return (
