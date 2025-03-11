@@ -9,11 +9,24 @@ import ReactPaginate from "react-paginate";
 import { ChevronDown } from "react-feather";
 import DataTable from "react-data-table-component";
 import { useNavigate, useParams } from "react-router-dom";
-import { useTranslation } from 'react-i18next'
+import { useTranslation } from "react-i18next";
+import { useForm, Controller } from "react-hook-form";
+import Select from "react-select";
+import { selectThemeColors } from "@utils";
 
 // ** Reactstrap Imports
-import { Card, CardHeader, CardTitle, Button, Row, Col, Label, Input } from "reactstrap";
-
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  Button,
+  Row,
+  Col,
+  CardBody,
+  Form,
+  Label,
+  Input,
+} from "reactstrap";
 
 import { httpRequest } from "../../../../services/Api";
 import { getToken } from "../../../../services/Auth";
@@ -23,37 +36,79 @@ const DataTablesReOrder = () => {
   let navigate = useNavigate();
   const [data, setDados] = useState([]);
   // ** States
-  const [searchValue, setSearchValue] = useState('')
+  const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
-  const [filteredData, setFilteredData] = useState([])
+  const [filteredData, setFilteredData] = useState([]);
+  const [selectNome, setselectNome] = useState([]);
+  const [selectEmail, setselectEmail] = useState([]);
+  const [dataForm, setDataForm] = useState(null);
   // ** Hooks
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
-  // ** Function to handle filter
-  const handleFilter = e => {
-    const value = e.target.value
-    let updatedData = []
-    setSearchValue(value)
+  let defaultValues = {
+    tipo: null,
+    empresa: null,
+    funcionario: null,
+    campo: { value: "nome", label: "Nome" },
+    ordenacao: { value: "crescente", label: "Crescente" },
+  };
 
-    if (value.length) {
-      updatedData = data.Contatos.filter(item => {
-        const startsWith =
-          item.nome.toLowerCase().startsWith(value.toLowerCase()) ||
-          item.email.toLowerCase().startsWith(value.toLowerCase()) 
+  const ordenacaoOPT = [
+    { value: "decrescente", label: "Decrescente" },
+    { value: "crescente", label: "Crescente" },
+  ];
 
-        const includes =
-          item.nome.toLowerCase().includes(value.toLowerCase()) ||
-          item.email.toLowerCase().includes(value.toLowerCase())
+  const camposOPT = [
+    { value: "id", label: "ID" },
+    { value: "nome", label: "Nome" },
+    { value: "email", label: "E-mail" },
+    { value: "status", label: "Status" },
+  ];
 
-        if (startsWith) {
-          return startsWith
-        } else if (!startsWith && includes) {
-          return includes
-        } else return null
-      })
-      setFilteredData(updatedData)
-      setSearchValue(value)
+  const {
+    reset,
+    control,
+    setError,
+    getInputProps,
+    handleSubmit,
+    setValue,
+    register,
+    formState: { errors },
+  } = useForm({ defaultValues });
+
+  const onSubmit = (data) => {
+    setDataForm(data);
+    buscaFiltro(data).then((res) => {
+      setDados(res);
+    });
+  };
+
+  async function buscaFiltro(data) {
+    let busca = `?order=${data.ordenacao.value}&campo=${data.campo.value}`;
+    if (data.nome) {
+      busca = `${busca}&nome=${data.nome.value}`;
     }
+    if (data.email) {
+      busca = `${busca}&email=${data.email.value}`;
+    }
+    if (data.status) {
+      busca = `${busca}&status=${data.status.value}`;
+    }
+    let retorno = await httpRequest(`clientes/${id}${busca}`, {
+      method: "GET",
+      token: getToken(),
+    });
+
+    const filtroIds = [data.nome?.value, data.email?.value].filter(Boolean);
+
+    if (retorno.body && retorno.body.Contatos && filtroIds.length > 0) {
+      // Filtra somente se filtroIds não estiver vazio
+      retorno.body.Contatos = retorno.body.Contatos.filter((contato) =>
+        filtroIds.includes(contato.id)
+      );
+    }
+
+    return retorno.body;
   }
 
   useEffect(() => {
@@ -62,6 +117,24 @@ const DataTablesReOrder = () => {
       token: getToken(),
     }).then((res) => {
       setDados(res.body);
+
+      const objNome = [];
+      res.body.Contatos.map((item) => {
+        objNome.push({
+          value: item.id,
+          label: item.nome,
+        });
+      });
+      setselectNome(objNome);
+
+      const objEmail = [];
+      res.body.Contatos.map((item) => {
+        objEmail.push({
+          value: item.id,
+          label: item.email,
+        });
+      });
+      setselectEmail(objEmail);
     });
   }, []);
 
@@ -108,21 +181,101 @@ const DataTablesReOrder = () => {
           </Button>
         </div>
       </CardHeader>
-      <Row className='justify-content-end mx-0'>
-        <Col className='d-flex align-items-center justify-content-end mt-1' md='6' sm='12'>
-          <Label className='me-1' for='search-input-1'>
-            {t('Busca')}
-          </Label>
-          <Input
-            className='dataTable-filter mb-50'
-            type='text'
-            bsSize='sm'
-            id='search-input-1'
-            value={searchValue}
-            onChange={handleFilter}
-          />
-        </Col>
-      </Row>
+
+      <CardBody>
+        <Form onSubmit={handleSubmit(onSubmit)}>
+          <Row>
+            <Col className={`mb-1`} xl="6" md="6" sm="12">
+              <Label className="form-label" for="campo">
+                Ordenação
+              </Label>
+              <Row>
+                <Col className={`mb-1`} xl="6" md="6" sm="12">
+                  <Controller
+                    id="campo"
+                    control={control}
+                    name="campo"
+                    render={({ field }) => (
+                      <Select
+                        options={camposOPT}
+                        classNamePrefix="select"
+                        theme={selectThemeColors}
+                        className={"react-select"}
+                        {...field}
+                      />
+                    )}
+                  />
+                </Col>
+                <Col className={`mb-1`} xl="6" md="6" sm="12">
+                  <Controller
+                    id="ordenacao"
+                    control={control}
+                    name="ordenacao"
+                    render={({ field }) => (
+                      <Select
+                        options={ordenacaoOPT}
+                        classNamePrefix="select"
+                        theme={selectThemeColors}
+                        className={"react-select"}
+                        {...field}
+                      />
+                    )}
+                  />
+                </Col>
+              </Row>
+            </Col>
+            <Col className={`mb-1`} xl="3" md="6" sm="12">
+              <Label className="form-label" for="nome">
+                Nome
+              </Label>
+
+              <Controller
+                id="nome"
+                control={control}
+                name="nome"
+                render={({ field }) => (
+                  <Select
+                    options={selectNome}
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    className={"react-select"}
+                    {...field}
+                    isClearable={true}
+                    value={field.value || null}
+                  />
+                )}
+              />
+            </Col>
+            <Col className={`mb-1`} xl="3" md="6" sm="12">
+              <Label className="form-label" for="email">
+                E-mail
+              </Label>
+
+              <Controller
+                id="email"
+                control={control}
+                name="email"
+                render={({ field }) => (
+                  <Select
+                    options={selectEmail}
+                    classNamePrefix="select"
+                    theme={selectThemeColors}
+                    className={"react-select"}
+                    {...field}
+                    isClearable={true}
+                    value={field.value || null}
+                  />
+                )}
+              />
+            </Col>
+            <Col className={`mb-1`} xl="12" md="12" sm="12">
+              <Button type="submit" color="outline-primary">
+                Filtrar
+              </Button>
+            </Col>
+          </Row>
+        </Form>
+      </CardBody>
       <div className="react-dataTable">
         <DataTable
           noHeader

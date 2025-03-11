@@ -92,6 +92,20 @@ export const coluns = [
     selector: (row) => row.y,
   },
   {
+    name: "X",
+    reorder: true,
+    sortable: true,
+    minWidth: "225px",
+    selector: (row) => row.x,
+  },
+  {
+    name: "Y",
+    reorder: true,
+    sortable: true,
+    minWidth: "225px",
+    selector: (row) => row.y,
+  },
+  {
     name: "Actions",
     allowOverflow: true,
     maxWidth: "120px",

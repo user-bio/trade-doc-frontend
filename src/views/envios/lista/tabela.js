@@ -80,6 +80,7 @@ const DataTablesReOrder = () => {
     { value: "id", label: "ID" },
     { value: "tipo", label: "Tipo" },
     { value: "empresa", label: "Empresa" },
+    { value: "contatos", label: "Contatos" },
     { value: "funcionario", label: "Funcionário" },
     { value: "data", label: "Data" },
     { value: "dia", label: "Dia" },
@@ -101,6 +102,7 @@ const DataTablesReOrder = () => {
     { value: "pendente", label: "Pendente" },
     { value: "aprovada", label: "Aprovada" },
     { value: "reprovada", label: "Reprovada" },
+    { value: "inativado", label: "Inativado" },
   ];
 
   if (getEnvioFIltro()) {
@@ -124,6 +126,10 @@ const DataTablesReOrder = () => {
           }
           contador++;
         }
+        console.log(filtros);
+        if(filtros === ""){
+          filtros = "?setores=vazio";
+        }
       }
       httpRequest(`envios${filtros}`, {
         method: "GET",
@@ -143,6 +149,7 @@ const DataTablesReOrder = () => {
         status: item.aprovacao,
         assunto: item.assunto,
         cliente: item.Cliente.nome_fantasia,
+        contatos: item.Contatos.map(contato => contato.email).join('- '),
         empresa: item.Empresa.nome_fantasia,
         tipo_envio: item.tipo,
         data_agendado: item.data,
@@ -170,7 +177,7 @@ const DataTablesReOrder = () => {
     let obj = [];
 
     for (let setor of setores.Setores) {
-      if (setor.Usuarios_Setores.permissoes.criaEnvio) {
+      if (setor.Usuarios_Setores.permissoes !== null && setor.Usuarios_Setores.permissoes.criaEnvio) {
         obj.push(setor.id);
       }
     }

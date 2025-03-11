@@ -55,8 +55,10 @@ const TableVencidos = () => {
     let obj = [];
 
     for (let setor of setores.Setores) {
-      if (setor.Usuarios_Setores.permissoes.criaEnvio && setor.Usuarios_Setores.permissoes !== undefined) {
-        obj.push(setor.id);
+      if (setor.Usuarios_Setores.permissoes !== null) {
+        if (setor.Usuarios_Setores.permissoes.criaEnvio) {
+          obj.push(setor.id);
+        }
       }
     }
     return obj;

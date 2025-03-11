@@ -58,6 +58,7 @@ const EnviosForm = () => {
   const defaultValues = {
     tipo: tiposOPT[0],
     dataEnvio: [],
+    dataFim: [],
     dataRecorrente: [],
     assunto: "",
   };
@@ -150,7 +151,7 @@ const EnviosForm = () => {
   }, []);
 
   useEffect(() => {
-    httpRequest(`empresas`, {
+    httpRequest(`empresas?status=1`, {
       method: "GET",
       token: getToken(),
     }).then((res) => {
@@ -165,30 +166,32 @@ const EnviosForm = () => {
     });
   }, []);
 
+if (id === undefined) {
   useEffect(() => {
     httpRequest(`documentos/tipos`, {
       method: "GET",
       token: getToken(),
     }).then((res) => {
+      const docsFilter = res.body.filter(item => item.status === true);
       if(Usuarios.isAdmin()){
-        setDocumentos(res.body);
+        setDocumentos(docsFilter);
       }else{
         const idsFiltrados = exibirTiposDocumentos();
-        const itensFiltrados = res.body.filter((objeto) =>
+        const itensFiltrados = docsFilter.filter((objeto) =>
           idsFiltrados.includes(objeto.setor_id)
         );
         setDocumentos(itensFiltrados);
       }
     });
   }, []);
+}
 
   function exibirTiposDocumentos() {
     const setores = Usuarios.getUserStorage();
 
     let obj = [];
-
     for (let setor of setores.Setores) {
-      if (setor.Usuarios_Setores.permissoes.criaEnvio) {
+      if (setor.Usuarios_Setores.permissoes && setor.Usuarios_Setores.permissoes.criaEnvio) {
         obj.push(setor.id);
       }
     }
@@ -321,6 +324,7 @@ const EnviosForm = () => {
         method: "GET",
         token: getToken(),
       }).then((res) => {
+        console.log(res.body.dados);
         setEnvio(res.body.dados);
 
         setTipoSele(res.body.dados.tipo);
@@ -330,6 +334,7 @@ const EnviosForm = () => {
         });
         setValue("assunto", res.body.dados.assunto);
 
+        
         if (res.body.dados.tipo === "recorrente") {
           setValue("dia", {
             value: res.body.dados.dia,
@@ -351,9 +356,12 @@ const EnviosForm = () => {
           method: "GET",
           token: getToken(),
         }).then((em) => {
-          setDocumentos(em.body);
-          let obj = em.body;
-          em.body.map((tipo, index) => {
+          
+          const docsFilter = em.body.filter(item => item.status === true);
+          setDocumentos(docsFilter);
+
+          let obj = docsFilter;
+          docsFilter.map((tipo, index) => {
             res.body.dados.Documentos_Tipos.filter(function (item) {
               if (tipo.id === item.id) {
                 obj[index].check = true;
@@ -433,12 +441,22 @@ const EnviosForm = () => {
             ? [res.body.dados.data + "T03:00:00.000Z"]
             : []
         );
+
+        setValue(
+          "dataFim",
+          res.body.dados.data_final_envio !== null
+            ? [res.body.dados.data_final_envio + "T03:00:00.000Z"]
+            : []
+        );
       });
     }, []);
   }
 
   function changeData(valor) {
     setValue(`dataEnvio`, valor);
+  }
+  function changeDataFim(valor) {
+    setValue(`dataFim`, valor);
   }
 
   const onSubmit = (data) => {
@@ -450,9 +468,10 @@ const EnviosForm = () => {
         cliente_id: data.clientes.value,
         empresa_id: data.empresa.value,
         data: data.dataEnvio.length > 0 ? data.dataEnvio[0] : null,
+        data_final_envio: data.dataFim.length > 0 ? data.dataFim[0] : null,
         dia: data.dia !== undefined ? data.dia.value : "",
         assunto: data.assunto,
-      };
+      };  
 
       objEnvio.destinos = [];
       contatos.map((contato) => {
@@ -736,6 +755,35 @@ const EnviosForm = () => {
                       )}
                     /> */}
                   </Col>
+                  <Col
+                    className={`mb-1 ${tipoSel !== "recorrente" ? "d-none" : ""}`}
+                    xl="4"
+                    md="6"
+                    sm="12"
+                  >
+                    <Label className="form-label" for="dataFim">
+                      Data de conclusão
+                    </Label>
+                    <Controller
+                      control={control}
+                      id="dataFim"
+                      name="dataFim"
+                      render={({ field }) => (
+                        <Flatpickr
+                          {...field}
+                          className={classnames("form-control", {
+                            "is-invalid":
+                              data !== null &&
+                              (data.dataFim === null ||
+                                !data.dataFim.length),
+                          })}
+                          id="dataFim"
+                          options={options}
+                          // onChange={(date) => changeData(date)}
+                        />
+                      )}
+                    />
+                  </Col>
                 </Row>
                 <hr />
                 <Row>
@@ -808,7 +856,9 @@ const EnviosForm = () => {
                         </div>
                       </Alert>
                     </div>
-                    {contatos.map((contato, index) => (
+                    {contatos
+                    .filter((contato) => contato.status == 1)
+                    .map((contato, index) => (
                       <div key={index} className="demo-inline-spacing">
                         <div className="form-check form-check-inline">
                           <input
@@ -876,8 +926,10 @@ const EnviosForm = () => {
                           <span>Nenhum funcionário disponível</span>
                         </div>
                       </Alert>
-                    </div>
-                    {funcionarios.map((funcionario, index) => (
+                    </div>                    
+                    {funcionarios
+                    .filter((funcionario) => funcionario.status == 1)
+                    .map((funcionario, index) => (
                       <div key={index} className="demo-inline-spacing">
                         <div className="form-check form-check-inline">
                           <input

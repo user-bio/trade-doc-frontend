@@ -10,6 +10,9 @@ import {
   Button,
 } from "reactstrap";
 
+import Select from "react-select";
+import { selectThemeColors } from "@utils";
+
 // ** Custom Components
 import Breadcrumbs from "@components/breadcrumbs";
 import Cleave from "cleave.js/react";
@@ -29,13 +32,22 @@ import { httpRequest } from "../../../services/Api";
 const EmpresasForm = () => {
   isAzure();
 
+  const statusOPT = [
+    { value: "1", label: "Ativo" },
+    { value: "0", label: "Inativo" },
+  ];
+
+  const defaultValues = {
+    status: statusOPT[0],
+  };
+
   const {
     reset,
     control,
     setError,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm({ defaultValues });
 
   let navigate = useNavigate();
   let { id } = useParams();
@@ -54,6 +66,7 @@ const EmpresasForm = () => {
           razao_social: res.body.razao_social,
           nome_fantasia: res.body.nome_fantasia,
           cnpj: formataCNPJ(res.body.cnpj),
+          status: res.body.status ? statusOPT[0] : statusOPT[1],
         });
       });
     }, []);
@@ -71,6 +84,7 @@ const EmpresasForm = () => {
         razao_social: data.razao_social,
         nome_fantasia: data.nome_fantasia,
         cnpj: limpaValores(data.cnpj),
+        status: data.status.value,
       };
       if (id === undefined) {
         httpRequest(`empresas`, {
@@ -196,6 +210,28 @@ const EmpresasForm = () => {
                             numericOnly: true,
                             numeralThousandsGroupStyle: "thousand",
                           }}
+                        />
+                      )}
+                    />
+                  </Col>
+                  <Col className="mb-1" xl="4" md="6" sm="12">
+                    <Label className="form-label" for="cnpj">
+                      Status
+                    </Label>
+
+                    <Controller
+                      id="status"
+                      control={control}
+                      name="status"
+                      render={({ field }) => (
+                        <Select
+                          options={statusOPT}
+                          classNamePrefix="select"
+                          theme={selectThemeColors}
+                          className={classnames("react-select", {
+                            "is-invalid": data !== null && data.status === null,
+                          })}
+                          {...field}
                         />
                       )}
                     />

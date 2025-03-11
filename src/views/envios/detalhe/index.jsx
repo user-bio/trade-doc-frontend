@@ -72,15 +72,58 @@ const EnviosDetalhe = () => {
       httpRequest(`envios/${id}`, {
         method: "GET",
         token: getToken(),
-      }).then((res) => {
-        console.log("aqui");
-        console.log(res.body.dados);
-        setData(res.body.dados);
-        setDetalhe(res.body.dados);
-        setEmpresa(res.body.dados.Empresa);
-        setCliente(res.body.dados.Cliente);
-        setTiposVazio(res.body.dados.tiposVazios);
-      });
+      })
+        .then((res) => {
+          const dadosTratados = res.body.dados;
+
+          Promise.all(
+            dadosTratados.Envio_Execucaos.map(async (item) => {
+              try {
+                // Faz a requisição para obter os logs políticos
+                const res = await httpRequest(`logs/politicas/${item.id}`, {
+                  method: "GET",
+                  token: getToken(),
+                });
+
+                // Verifica os logs e associa a cada "Envio_Execucao_Vistos" com base no contato_id
+                res.body.forEach((log) => {
+                  // Encontra o Envio_Execucao_Vistos correspondente ao contato_id
+                  const visto = item.Envio_Execucao_Vistos.find(
+                    (v) => v.contato_id === log.contato_id
+                  );
+
+                  if (visto) {
+                    // Adiciona o log ao array de logs do Envio_Execucao_Vistos correspondente
+                    if (!visto.logs_politicas) {
+                      visto.logs_politicas = []; // Caso não tenha a chave logs_politicas, cria um array
+                    }
+                    visto.logs_politicas.push(log); // Adiciona o log
+                  }
+                });
+              } catch (error) {
+                console.error("Erro ao buscar logs politicas:", error);
+                item.Envio_Execucao_Vistos.forEach((visto) => {
+                  visto.logs_politicas = []; // Em caso de erro, garante que o array de logs esteja vazio
+                });
+              }
+              return item; // Retorna o item atualizado
+            })
+          )
+            .then((updatedItems) => {
+              dadosTratados.Envio_Execucaos = updatedItems;
+              setData(dadosTratados);
+              setDetalhe(dadosTratados);
+              setEmpresa(dadosTratados.Empresa);
+              setCliente(dadosTratados.Cliente);
+              setTiposVazio(dadosTratados.tiposVazios);
+            })
+            .catch((error) => {
+              console.error("Erro ao processar Envio_Execucaos:", error);
+            });
+        })
+        .catch((error) => {
+          console.error("Erro ao buscar envios:", error);
+        });
     }, []);
   }
 
@@ -262,7 +305,8 @@ const EnviosDetalhe = () => {
                         Reprovado
                       </Badge>
                     </div>
-                    {detalhe.aprovacao == "pendente" || detalhe.aprovacao == "reprovada" ? (
+                    {detalhe.aprovacao == "pendente" ||
+                    detalhe.aprovacao == "reprovada" ? (
                       <div>
                         <h3 className="mb-2 mt-2">Informações de pendência</h3>
                         <div
@@ -351,7 +395,13 @@ const EnviosDetalhe = () => {
                                   </Button>
                                 </div>
                               </div>
-                              <div className={`col-lg-3 ${detalhe.aprovacao == "reprovada" ? "d-none" : ""}`}>
+                              <div
+                                className={`col-lg-3 ${
+                                  detalhe.aprovacao == "reprovada"
+                                    ? "d-none"
+                                    : ""
+                                }`}
+                              >
                                 <Label className="form-label">
                                   Reprovar envio
                                 </Label>
@@ -380,6 +430,14 @@ const EnviosDetalhe = () => {
                       <div className="mb-2">
                         <label>
                           <b>Tipo envio:</b> {detalhe.tipo}
+                          {detalhe.tipo === "recorrente" &&
+                            detalhe.data_final_envio !== null && (
+                              <>
+                                <br />
+                                <b>Data final:</b>{" "}
+                                {dataPTBR(detalhe.data_final_envio)}
+                              </>
+                            )}
                         </label>
                       </div>
                       <div className="mb-2">
@@ -510,43 +568,107 @@ const EnviosDetalhe = () => {
                         <table className="table">
                           <thead>
                             <tr>
-                              <th width="33%">Data envio</th>
-                              <th width="33%">Lista E-mails</th>
-                              <th width="33%" className="text-end">
+                              <th width="20%">Data envio</th>
+                              <th width="20%">Lista E-mails</th>
+                              <th width="20%">Assinatura de logs</th>
+                              <th width="20%" className="text-end">
                                 Status
                               </th>
                             </tr>
                           </thead>
                           <tbody>
                             {data !== null
-                              ? data.Envio_Execucaos.map((result, index) => (
-                                  <tr key={index}>
-                                    <td>{dataPTBR(result.createdAt)}</td>
-                                    <td>
-                                      {result.Envio_Execucao_Vistos.map(
-                                        (info, position) => (
-                                          <div key={position}>
-                                            {info.Contato.email}
-                                          </div>
-                                        )
-                                      )}
-                                    </td>
-                                    <td className="text-end">
-                                      <span
-                                        className={`badge  ${
-                                          result.Envio_Execucao_Vistos.length >
-                                          0
-                                            ? "bg-success"
-                                            : "bg-danger"
-                                        }`}
-                                      >
-                                        {result.Envio_Execucao_Vistos.length > 0
-                                          ? "Visualizado"
-                                          : "Não Visualizado"}
-                                      </span>
-                                    </td>
-                                  </tr>
-                                ))
+                              ? [...data.Envio_Execucaos]
+                                  .reverse()
+                                  .map((result, index) => (
+                                    <tr key={index}>
+                                      <td>{dataPTBR(result.createdAt)}</td>
+                                      <td>
+                                        {result.Envio_Execucao_Vistos &&
+                                          Array.isArray(
+                                            result.Envio_Execucao_Vistos
+                                          ) &&
+                                          result.Envio_Execucao_Vistos.map(
+                                            (info, position) => (
+                                              <div key={position}>
+                                                {info.Contato &&
+                                                  info.Contato.email}
+                                              </div>
+                                            )
+                                          )}
+                                      </td>
+                                      <td>
+                                        {result.Envio_Execucao_Vistos &&
+                                          Array.isArray(
+                                            result.Envio_Execucao_Vistos
+                                          ) &&
+                                          result.Envio_Execucao_Vistos.map(
+                                            (info, position) => (
+                                              <div key={position}>
+                                                {info.logs_politicas &&
+                                                info.logs_politicas.length >
+                                                  0 ? (
+                                                  info.logs_politicas.map(
+                                                    (log, logPosition) => (
+                                                      <div key={logPosition}>
+                                                        <a
+                                                          href={`https://app-homologacao-e9habgh6dkb8hgh4.brazilsouth-01.azurewebsites.net/api/v1/log/${log.arquivo}`}
+                                                          target="_blank"
+                                                          rel="noopener noreferrer"
+                                                        >
+                                                          Log:{" "}
+                                                          {info.Contato.nome} -
+                                                          Arquivo
+                                                        </a>
+                                                      </div>
+                                                    )
+                                                  )
+                                                ) : (
+                                                  <p className="mb-0">
+                                                    Sem log gerado
+                                                  </p>
+                                                )}
+                                              </div>
+                                            )
+                                          )}
+                                      </td>
+                                      <td className="text-end">
+                                        {result.Envio_Execucao_Vistos &&
+                                          Array.isArray(
+                                            result.Envio_Execucao_Vistos
+                                          ) &&
+                                          result.Envio_Execucao_Vistos.map(
+                                            (info, position) => (
+                                              <div key={position}>
+                                                {info.logs_politicas &&
+                                                info.logs_politicas.length >
+                                                  0 ? (
+                                                  info.logs_politicas.map(
+                                                    (log, logPosition) => (
+                                                      <div key={logPosition}>
+                                                        <span
+                                                          className={`badge mb1 d-block bg-success`}
+                                                        >
+                                                          Visualizado
+                                                        </span>
+                                                      </div>
+                                                    )
+                                                  )
+                                                ) : (
+                                                  <div>
+                                                    <span
+                                                      className={`badge mb1 d-block bg-danger`}
+                                                    >
+                                                      Não Visualizado
+                                                    </span>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            )
+                                          )}
+                                      </td>
+                                    </tr>
+                                  ))
                               : ""}
                           </tbody>
                         </table>

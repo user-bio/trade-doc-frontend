@@ -31,6 +31,15 @@ import { httpRequest } from "../../../services/Api";
 const ClientesForm = () => {
   isAzure();
 
+  const statusOPT = [
+    { value: "1", label: "Ativo" },
+    { value: "0", label: "Inativo" },
+  ];
+
+  const defaultValues = {
+    status: statusOPT[0],
+  };
+
   const {
     reset,
     control,
@@ -39,7 +48,7 @@ const ClientesForm = () => {
     register,
     setValue,
     formState: { errors },
-  } = useForm();
+  } = useForm({ defaultValues });
 
   let navigate = useNavigate();
   let { id } = useParams();
@@ -60,6 +69,7 @@ const ClientesForm = () => {
           razao_social: res.body.razao_social,
           nome_fantasia: res.body.nome_fantasia,
           cnpj: formataCNPJ(res.body.cnpj),
+          status: res.body.status ? statusOPT[0] : statusOPT[1],
         });
         setSelected(res.body.anexo);
         setValue("anexo", res.body.anexo);
@@ -117,6 +127,7 @@ const ClientesForm = () => {
         nome_fantasia: data.nome_fantasia,
         cnpj: limpaValores(data.cnpj),
         anexo: data.anexo,
+        status: data.status.value,
         possui_setor: data.setor === null || data.setor === undefined ? 0 : data.setor.value
       };
       if (id === undefined) {
@@ -288,6 +299,28 @@ const ClientesForm = () => {
                               data.setor === null
                           })}
                           isClearable={true}
+                          {...field}
+                        />
+                      )}
+                    />
+                  </Col>
+                  <Col className="mb-1" xl="4" md="6" sm="12">
+                    <Label className="form-label" for="cnpj">
+                      Status
+                    </Label>
+
+                    <Controller
+                      id="status"
+                      control={control}
+                      name="status"
+                      render={({ field }) => (
+                        <Select
+                          options={statusOPT}
+                          classNamePrefix="select"
+                          theme={selectThemeColors}
+                          className={classnames("react-select", {
+                            "is-invalid": data !== null && data.status === null,
+                          })}
                           {...field}
                         />
                       )}
