@@ -8,16 +8,9 @@ const MySwal = withReactContent(Swal);
 import { httpRequest, BASE_URL } from "../../services/Api";
 
 import logo from "../../assets/images/logo/logo.png";
-import isAzure from "../../components/isAzure";
-import { useIsAuthenticated } from "@azure/msal-react";
 import { getToken } from "../../services/Auth";
-import Usuarios from "../../services/Usuarios";
 
 const Download = () => {
-
-  isAzure();
-  const usuarios = Usuarios.getUserStorage();
-  const isAuthenticated = useIsAuthenticated();
 
   const [funcionarios, setFuncionarios] = useState(null);
   const [empresas, setEmpresas] = useState(null);
@@ -26,53 +19,54 @@ const Download = () => {
   let { id } = useParams();
   let { email } = useParams();
 
-  if(isAuthenticated){
-    
+  useEffect(() => {
     httpRequest(`logs/politicas/${id}/${email}`, {
       method: "GET",
       token: getToken(),
-    }).then((res) => {
-      if(res.body === ""){
+    })
+      .then((res) => {
+        if (res.body === "") {
+          MySwal.fire({
+            title: "Política de Confidencialidade",
+            html: "<p class='text-start'>Este acesso, incluindo os seus anexos, é dirigido exclusivamente ao destinatário, com propósito específico, e, pode conter dados pessoais, informações confidenciais e legalmente protegidas. Se você não for destinatário deste acesso, desde já fica notificado de abster-se a divulgar, copiar, distribuir, examinar ou, de qualquer forma, utilizar a informação contida nesta mensagem, por ser ilegal e não ter autorização para tais atos. Se você a recebeu por engano, avise imediatamente o remetente e apague-a. Caso seja o destinatário, ressaltamos que as informações ou dados pessoais aqui transacionados devem ser tratados com respeito à privacidade e fundamentos previstos na Lei nº 13.709/2018 – Lei Geral de Proteção de Dados Pessoais (LGPD) e demais legislações aplicáveis.<br /><br />Neste acesso, declaro ciência e concordância as condições do termo de confidencialidade do site, <a href='https://app-bioseta.azurewebsites.net/api/v1/file/politicas-de-privacidade' target='_blank'>saiba mais.</a></p>",
+            icon: "warning",
+            showCancelButton: false,
+            confirmButtonText: "Sim, entendido!",
+            cancelButtonText: "Cancelar",
+            customClass: {
+              confirmButton: "btn btn-primary",
+              cancelButton: "btn btn-danger ms-1",
+            },
+            buttonsStyling: false,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+          }).then((result) => {
+            if (result.isConfirmed) {
+              httpRequest(`logs/politicas`, {
+                method: "POST",
+                body: {
+                  envio_execucao_id: id,
+                  envio_execucao_email: email,
+                },
+                token: getToken(),
+              });
+            }
+          });
+        }
+      })
+      .catch((e) => {
         MySwal.fire({
           title: "Política de Confidencialidade",
-          html: "<p class='text-start'>Este acesso, incluindo os seus anexos, é dirigido exclusivamente ao destinatário, com propósito específico, e, pode conter dados pessoais, informações confidenciais e legalmente protegidas. Se você não for destinatário deste acesso, desde já fica notificado de abster-se a divulgar, copiar, distribuir, examinar ou, de qualquer forma, utilizar a informação contida nesta mensagem, por ser ilegal e não ter autorização para tais atos. Se você a recebeu por engano, avise imediatamente o remetente e apague-a. Caso seja o destinatário, ressaltamos que as informações ou dados pessoais aqui transacionados devem ser tratados com respeito à privacidade e fundamentos previstos na Lei nº 13.709/2018 – Lei Geral de Proteção de Dados Pessoais (LGPD) e demais legislações aplicáveis.<br /><br />Neste acesso, declaro ciência e concordância as condições do termo de confidencialidade do site, <a href='https://app-bioseta.azurewebsites.net/api/v1/file/politicas-de-privacidade' target='_blank'>saiba mais.</a></p>",
+          html: "<p class='text-start'>Você está acessando de forma inválida!</p>",
           icon: "warning",
           showCancelButton: false,
-          confirmButtonText: "Sim, entendido!",
-          cancelButtonText: "Cancelar",
-          customClass: {
-            confirmButton: "btn btn-primary",
-            cancelButton: "btn btn-danger ms-1",
-          },
           buttonsStyling: false,
           allowOutsideClick: false,
           allowEscapeKey: false,
-        }).then((result) => {
-          if (result.isConfirmed) {
-            httpRequest(`logs/politicas`, {
-              method: "POST",
-              body: {
-                envio_execucao_id: id,
-                envio_execucao_email: email
-              },
-              token: getToken(),
-            });
-          }
+          showConfirmButton: false,
         });
-      }
-    }).catch(e => {
-      MySwal.fire({
-        title: "Política de Confidencialidade",
-        html: "<p class='text-start'>Você está acessando de forma inválida!</p>",
-        icon: "warning",
-        showCancelButton: false,
-        buttonsStyling: false,
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        showConfirmButton: false
-      })
-    });
-  }
+      });
+  }, []);
 
   useEffect(() => {
     httpRequest(`envios/arquivos/${id}`, {
