@@ -97,6 +97,9 @@ const EnviosForm = () => {
   const [assuntos, setAssuntos] = useState(null);
   const [clienteView, setClienteView] = useState([]);
 
+  const [searchFuncionarios, setSearchFuncionarios] = useState("");
+  const [searchDocumentos, setSearchDocumentos] = useState("");
+
   // useEffect(() => {
   //   Usuarios.getUser().then((res) => {
   //     setDadosUser(res)
@@ -166,32 +169,40 @@ const EnviosForm = () => {
     });
   }, []);
 
-if (id === undefined) {
-  useEffect(() => {
-    httpRequest(`documentos/tipos`, {
-      method: "GET",
-      token: getToken(),
-    }).then((res) => {
-      const docsFilter = res.body.filter(item => item.status === true);
-      if(Usuarios.isAdmin()){
-        setDocumentos(docsFilter);
-      }else{
-        const idsFiltrados = exibirTiposDocumentos();
-        const itensFiltrados = docsFilter.filter((objeto) =>
-          idsFiltrados.includes(objeto.setor_id)
-        );
-        setDocumentos(itensFiltrados);
-      }
-    });
-  }, []);
-}
+  if (id === undefined) {
+    useEffect(() => {
+      httpRequest(`documentos/tipos`, {
+        method: "GET",
+        token: getToken(),
+      }).then((res) => {
+        const docsFilter = res.body.filter((item) => item.status === true);
+        if (Usuarios.isAdmin()) {
+          setDocumentos(docsFilter);
+        } else {
+          const idsFiltrados = exibirTiposDocumentos();
+          const itensFiltrados = docsFilter.filter((objeto) =>
+            idsFiltrados.includes(objeto.setor_id)
+          );
+          setDocumentos(itensFiltrados);
+        }
+      });
+    }, []);
+  }
+
+  
+  const filteredDocumentos = documentos.filter((item) =>
+    item.nome.toLowerCase().includes(searchDocumentos.toLowerCase())
+  );
 
   function exibirTiposDocumentos() {
     const setores = Usuarios.getUserStorage();
 
     let obj = [];
     for (let setor of setores.Setores) {
-      if (setor.Usuarios_Setores.permissoes && setor.Usuarios_Setores.permissoes.criaEnvio) {
+      if (
+        setor.Usuarios_Setores.permissoes &&
+        setor.Usuarios_Setores.permissoes.criaEnvio
+      ) {
         obj.push(setor.id);
       }
     }
@@ -244,6 +255,11 @@ if (id === undefined) {
       setFuncionarios(res.body.Funcionarios);
     });
   }
+
+  // Filtra os itens conforme o texto digitado
+  const filteredfuncionarios = funcionarios.filter((item) =>
+    item.nome.toLowerCase().includes(searchFuncionarios.toLowerCase())
+  );
 
   function changeTipo(e) {
     setValue("tipo", {
@@ -334,7 +350,6 @@ if (id === undefined) {
         });
         setValue("assunto", res.body.dados.assunto);
 
-        
         if (res.body.dados.tipo === "recorrente") {
           setValue("dia", {
             value: res.body.dados.dia,
@@ -356,8 +371,7 @@ if (id === undefined) {
           method: "GET",
           token: getToken(),
         }).then((em) => {
-          
-          const docsFilter = em.body.filter(item => item.status === true);
+          const docsFilter = em.body.filter((item) => item.status === true);
           setDocumentos(docsFilter);
 
           let obj = docsFilter;
@@ -461,7 +475,6 @@ if (id === undefined) {
 
   const onSubmit = (data) => {
     setData(data);
-
     if (data.empresa !== undefined && data.clientes !== undefined) {
       let objEnvio = {
         tipo: data.tipo.value,
@@ -471,7 +484,7 @@ if (id === undefined) {
         data_final_envio: data.dataFim.length > 0 ? data.dataFim[0] : null,
         dia: data.dia !== undefined ? data.dia.value : "",
         assunto: data.assunto,
-      };  
+      };
 
       objEnvio.destinos = [];
       contatos.map((contato) => {
@@ -756,7 +769,9 @@ if (id === undefined) {
                     /> */}
                   </Col>
                   <Col
-                    className={`mb-1 ${tipoSel !== "recorrente" ? "d-none" : ""}`}
+                    className={`mb-1 ${
+                      tipoSel !== "recorrente" ? "d-none" : ""
+                    }`}
                     xl="4"
                     md="6"
                     sm="12"
@@ -774,8 +789,7 @@ if (id === undefined) {
                           className={classnames("form-control", {
                             "is-invalid":
                               data !== null &&
-                              (data.dataFim === null ||
-                                !data.dataFim.length),
+                              (data.dataFim === null || !data.dataFim.length),
                           })}
                           id="dataFim"
                           options={options}
@@ -857,32 +871,32 @@ if (id === undefined) {
                       </Alert>
                     </div>
                     {contatos
-                    .filter((contato) => contato.status == 1)
-                    .map((contato, index) => (
-                      <div key={index} className="demo-inline-spacing">
-                        <div className="form-check form-check-inline">
-                          <input
-                            {...register(`checkbox_${contato.id}`)}
-                            className="form-check-input"
-                            type="checkbox"
-                            id={`checkbox_${contato.id}`}
-                            checked={
-                              selected.includes(contato.id) ? true : false
-                            }
-                            onChange={() => {
-                              marcaCheck(contato);
-                            }}
-                          />
+                      .filter((contato) => contato.status == 1)
+                      .map((contato, index) => (
+                        <div key={index} className="demo-inline-spacing">
+                          <div className="form-check form-check-inline">
+                            <input
+                              {...register(`checkbox_${contato.id}`)}
+                              className="form-check-input"
+                              type="checkbox"
+                              id={`checkbox_${contato.id}`}
+                              checked={
+                                selected.includes(contato.id) ? true : false
+                              }
+                              onChange={() => {
+                                marcaCheck(contato);
+                              }}
+                            />
 
-                          <Label
-                            for={`checkbox_${contato.id}`}
-                            className="form-check-label"
-                          >
-                            {contato.nome}
-                          </Label>
+                            <Label
+                              for={`checkbox_${contato.id}`}
+                              className="form-check-label"
+                            >
+                              {contato.nome}
+                            </Label>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </Col>
                 </Row>
                 <hr />
@@ -918,6 +932,15 @@ if (id === undefined) {
                     <Label className="form-label" for="clientes">
                       Selecione os funcionários
                     </Label>
+                    <div className="col-lg-3 mb-1">
+                      <input
+                        type="text"
+                        placeholder="Busque por nome"
+                        value={searchFuncionarios}
+                        className="form-control w-lg-25"
+                        onChange={(e) => setSearchFuncionarios(e.target.value)}
+                      />
+                    </div>
                     <div
                       className={`${funcionarios.length > 0 ? "d-none" : ""}`}
                     >
@@ -926,34 +949,36 @@ if (id === undefined) {
                           <span>Nenhum funcionário disponível</span>
                         </div>
                       </Alert>
-                    </div>                    
-                    {funcionarios
-                    .filter((funcionario) => funcionario.status == 1)
-                    .map((funcionario, index) => (
-                      <div key={index} className="demo-inline-spacing">
-                        <div className="form-check form-check-inline">
-                          <input
-                            {...register(`checkbox_f_${funcionario.id}`)}
-                            className="form-check-input"
-                            type="checkbox"
-                            id={`checkbox_f_${funcionario.id}`}
-                            checked={
-                              selectedF.includes(funcionario.id) ? true : false
-                            }
-                            onChange={() => {
-                              marcaCheckF(funcionario);
-                            }}
-                          />
+                    </div>
+                    {filteredfuncionarios
+                      .filter((funcionario) => funcionario.status == 1)
+                      .map((funcionario, index) => (
+                        <div key={index} className="demo-inline-spacing">
+                          <div className="form-check form-check-inline">
+                            <input
+                              {...register(`checkbox_f_${funcionario.id}`)}
+                              className="form-check-input"
+                              type="checkbox"
+                              id={`checkbox_f_${funcionario.id}`}
+                              checked={
+                                selectedF.includes(funcionario.id)
+                                  ? true
+                                  : false
+                              }
+                              onChange={() => {
+                                marcaCheckF(funcionario);
+                              }}
+                            />
 
-                          <Label
-                            for={`checkbox_f_${funcionario.id}`}
-                            className="form-check-label"
-                          >
-                            {funcionario.nome}
-                          </Label>
+                            <Label
+                              for={`checkbox_f_${funcionario.id}`}
+                              className="form-check-label"
+                            >
+                              {funcionario.nome}
+                            </Label>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </Col>
                 </Row>
                 <hr />
@@ -962,6 +987,15 @@ if (id === undefined) {
                     <Label className="form-label" for="documentos">
                       Selecione os documentos
                     </Label>
+                    <div className="col-lg-3 mb-1">
+                      <input
+                        type="text"
+                        placeholder="Busque por tipo de documento"
+                        className="form-control w-lg-25"
+                        value={searchDocumentos}
+                        onChange={(e) => setSearchDocumentos(e.target.value)}
+                      />
+                    </div>
                     <div className={`${documentos.length > 0 ? "d-none" : ""}`}>
                       <Alert color="primary">
                         <div className="alert-body">
@@ -969,7 +1003,7 @@ if (id === undefined) {
                         </div>
                       </Alert>
                     </div>
-                    {documentos.map((documento, index) => (
+                    {filteredDocumentos.map((documento, index) => (
                       <div key={index} className="demo-inline-spacing">
                         <div className="row w-100">
                           <div className="col-lg-6">
