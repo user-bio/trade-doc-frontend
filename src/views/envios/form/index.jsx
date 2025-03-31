@@ -189,7 +189,6 @@ const EnviosForm = () => {
     }, []);
   }
 
-  
   const filteredDocumentos = documentos.filter((item) =>
     item.nome.toLowerCase().includes(searchDocumentos.toLowerCase())
   );
@@ -340,7 +339,6 @@ const EnviosForm = () => {
         method: "GET",
         token: getToken(),
       }).then((res) => {
-        console.log(res.body.dados);
         setEnvio(res.body.dados);
 
         setTipoSele(res.body.dados.tipo);
@@ -473,106 +471,129 @@ const EnviosForm = () => {
     setValue(`dataFim`, valor);
   }
 
+  const getCheckedFuncionarios = () => {
+    const checkedIds = Array.from(
+      document.querySelectorAll("input[type='checkbox']:checked")
+    ).map((input) => input.id.replace("checkbox_f_", "")); // Extrai os IDs dos checkboxes marcados
+
+    return funcionarios.filter((funcionario) =>
+      checkedIds.includes(funcionario.id.toString())
+    );
+  };
+  const filteredFuncionarios = getCheckedFuncionarios();
+
+  const getCheckedDocumentos = () => {
+    const checkedIds = Array.from(
+      document.querySelectorAll("input[type='checkbox']:checked")
+    ).map((input) => input.id.replace("checkbox_d_", "")); // Extrai os IDs dos checkboxes marcados
+
+    return documentos.filter((documento) =>
+      checkedIds.includes(documento.id.toString())
+    );
+  };
+  const filteredDocumentosSelect = getCheckedDocumentos();
+
   const onSubmit = (data) => {
     setData(data);
-    if (data.empresa !== undefined && data.clientes !== undefined) {
-      let objEnvio = {
-        tipo: data.tipo.value,
-        cliente_id: data.clientes.value,
-        empresa_id: data.empresa.value,
-        data: data.dataEnvio.length > 0 ? data.dataEnvio[0] : null,
-        data_final_envio: data.dataFim.length > 0 ? data.dataFim[0] : null,
-        dia: data.dia !== undefined ? data.dia.value : "",
-        assunto: data.assunto,
-      };
+    console.log(data);
+    // if (data.empresa !== undefined && data.clientes !== undefined) {
+    //   let objEnvio = {
+    //     tipo: data.tipo.value,
+    //     cliente_id: data.clientes.value,
+    //     empresa_id: data.empresa.value,
+    //     data: data.dataEnvio.length > 0 ? data.dataEnvio[0] : null,
+    //     data_final_envio: data.dataFim.length > 0 ? data.dataFim[0] : null,
+    //     dia: data.dia !== undefined ? data.dia.value : "",
+    //     assunto: data.assunto,
+    //   };
 
-      objEnvio.destinos = [];
-      contatos.map((contato) => {
-        if (eval(`data.checkbox_${contato.id}`)) {
-          objEnvio.destinos.push(contato.id);
-        }
-      });
+    //   objEnvio.destinos = [];
+    //   contatos.map((contato) => {
+    //     if (eval(`data.checkbox_${contato.id}`)) {
+    //       objEnvio.destinos.push(contato.id);
+    //     }
+    //   });
 
-      objEnvio.funcionarios = [];
-      funcionarios.map((funcionario) => {
-        if (eval(`data.checkbox_f_${funcionario.id}`)) {
-          objEnvio.funcionarios.push(funcionario.id);
-        }
-      });
+    //   objEnvio.funcionarios = [];
+    //   funcionarios.map((funcionario) => {
+    //     if (eval(`data.checkbox_f_${funcionario.id}`)) {
+    //       objEnvio.funcionarios.push(funcionario.id);
+    //     }
+    //   });
 
-      objEnvio.documentos = [];
-      documentos.map((documento) => {
-        if (eval(`data.checkbox_d_${documento.id}`)) {
-          objEnvio.documentos.push({
-            tipoId: documento.id,
-            envia_documentos_atualizados: eval(
-              `data.checkbox_atu_${documento.id}`
-            )
-              ? "sim"
-              : "nao",
-          });
-        }
-      });
+    //   objEnvio.documentos = [];
+    //   documentos.map((documento) => {
+    //     if (eval(`data.checkbox_d_${documento.id}`)) {
+    //       objEnvio.documentos.push({
+    //         tipoId: documento.id,
+    //         envia_documentos_atualizados: eval(
+    //           `data.checkbox_atu_${documento.id}`
+    //         )
+    //           ? "sim"
+    //           : "nao",
+    //       });
+    //     }
+    //   });
 
-      if (id === undefined) {
-        httpRequest(`envios`, {
-          method: "POST",
-          body: objEnvio,
-          token: getToken(),
-        })
-          .then((res) => {
-            MySwal.fire({
-              icon: "success",
-              title: "Sucesso!",
-              text: "Envio criado com sucesso.",
-              customClass: {
-                confirmButton: "btn btn-success",
-              },
-            });
-            navigate("/envios");
-          })
-          .catch((error) => {
-            console.log(error);
-            MySwal.fire({
-              icon: "error",
-              title: "Erro!",
-              text: error.response.data.message,
-              customClass: {
-                confirmButton: "btn btn-success",
-              },
-            });
-            navigate(`/envios/detalhe/${error.response.data.id}`);
-          });
-      } else {
-        httpRequest(`envios/${id}`, {
-          method: "POST",
-          body: objEnvio,
-          token: getToken(),
-        })
-          .then((res) => {
-            MySwal.fire({
-              icon: "success",
-              title: "Sucesso!",
-              text: "Cadastro atualizado com sucesso.",
-              customClass: {
-                confirmButton: "btn btn-success",
-              },
-            });
-            navigate(`/envios/detalhe/${id}`);
-          })
-          .catch((error) => {
-            MySwal.fire({
-              icon: "error",
-              title: "Erro!",
-              text: error.response.data,
-              customClass: {
-                confirmButton: "btn btn-success",
-              },
-            });
-            navigate(`/envios/detalhe/${id}`);
-          });
-      }
-    }
+    //   if (id === undefined) {
+    //     httpRequest(`envios`, {
+    //       method: "POST",
+    //       body: objEnvio,
+    //       token: getToken(),
+    //     })
+    //       .then((res) => {
+    //         MySwal.fire({
+    //           icon: "success",
+    //           title: "Sucesso!",
+    //           text: "Envio criado com sucesso.",
+    //           customClass: {
+    //             confirmButton: "btn btn-success",
+    //           },
+    //         });
+    //         navigate("/envios");
+    //       })
+    //       .catch((error) => {
+    //         console.log(error);
+    //         MySwal.fire({
+    //           icon: "error",
+    //           title: "Erro!",
+    //           text: error.response.data.message,
+    //           customClass: {
+    //             confirmButton: "btn btn-success",
+    //           },
+    //         });
+    //         navigate(`/envios/detalhe/${error.response.data.id}`);
+    //       });
+    //   } else {
+    //     httpRequest(`envios/${id}`, {
+    //       method: "POST",
+    //       body: objEnvio,
+    //       token: getToken(),
+    //     })
+    //       .then((res) => {
+    //         MySwal.fire({
+    //           icon: "success",
+    //           title: "Sucesso!",
+    //           text: "Cadastro atualizado com sucesso.",
+    //           customClass: {
+    //             confirmButton: "btn btn-success",
+    //           },
+    //         });
+    //         navigate(`/envios/detalhe/${id}`);
+    //       })
+    //       .catch((error) => {
+    //         MySwal.fire({
+    //           icon: "error",
+    //           title: "Erro!",
+    //           text: error.response.data,
+    //           customClass: {
+    //             confirmButton: "btn btn-success",
+    //           },
+    //         });
+    //         navigate(`/envios/detalhe/${id}`);
+    //       });
+    //   }
+    // }
   };
 
   const reenvioDeEmail = () => {
@@ -941,6 +962,13 @@ const EnviosForm = () => {
                         onChange={(e) => setSearchFuncionarios(e.target.value)}
                       />
                     </div>
+                    <div>
+                      <ul>
+                        {filteredFuncionarios.map((funcionario, key) => (
+                          <li key={key}>{funcionario.nome}</li>
+                        ))}
+                      </ul>
+                    </div>
                     <div
                       className={`${funcionarios.length > 0 ? "d-none" : ""}`}
                     >
@@ -995,6 +1023,13 @@ const EnviosForm = () => {
                         value={searchDocumentos}
                         onChange={(e) => setSearchDocumentos(e.target.value)}
                       />
+                    </div>
+                    <div>
+                      <ul>
+                        {filteredDocumentosSelect.map((documento, key) => (
+                          <li key={key}>{documento.nome}</li>
+                        ))}
+                      </ul>
                     </div>
                     <div className={`${documentos.length > 0 ? "d-none" : ""}`}>
                       <Alert color="primary">
