@@ -480,6 +480,7 @@ const EnviosForm = () => {
   const filteredFuncionariosSelect = getCheckedFuncionarios();
 
   const getCheckedDocumentos = () => {
+    console.log(selectedD);
     return documentos.filter((documento) =>
       selectedD.includes(documento.id)
     );
@@ -956,8 +957,8 @@ const EnviosForm = () => {
                     </div>
                     <div>
                       <ul>
-                        {filteredFuncionariosSelect.map((funcionario, key) => (
-                          <li key={key}>{funcionario.nome}</li>
+                        {filteredFuncionariosSelect.map((funcionario) => (
+                          <li key={funcionario.id}>{funcionario.nome}</li>
                         ))}
                       </ul>
                     </div>
@@ -972,8 +973,8 @@ const EnviosForm = () => {
                     </div>
                     {filteredfuncionarios
                       .filter((funcionario) => funcionario.status == 1)
-                      .map((funcionario, index) => (
-                        <div key={index} className="demo-inline-spacing">
+                      .map((funcionario) => (
+                        <div key={funcionario.id} className="demo-inline-spacing">
                           <div className="form-check form-check-inline">
                             <input
                               {...register(`checkbox_f_${funcionario.id}`)}
@@ -1018,8 +1019,8 @@ const EnviosForm = () => {
                     </div>
                     <div>
                       <ul>
-                        {filteredDocumentosSelect.map((documento, key) => (
-                          <li key={key}>{documento.nome}</li>
+                        {filteredDocumentosSelect.map((documento) => (
+                          <li key={documento.id}>{documento.nome}</li>
                         ))}
                       </ul>
                     </div>
@@ -1030,8 +1031,8 @@ const EnviosForm = () => {
                         </div>
                       </Alert>
                     </div>
-                    {filteredDocumentos.map((documento, index) => (
-                      <div key={index} className="demo-inline-spacing">
+                    {filteredDocumentos.map((documento) => (
+                      <div key={documento.id} className="demo-inline-spacing">
                         <div className="row w-100">
                           <div className="col-lg-6">
                             <div className="form-check form-check-inline">
