@@ -480,7 +480,6 @@ const EnviosForm = () => {
   const filteredFuncionariosSelect = getCheckedFuncionarios();
 
   const getCheckedDocumentos = () => {
-    console.log(selectedD);
     return documentos.filter((documento) =>
       selectedD.includes(documento.id)
     );

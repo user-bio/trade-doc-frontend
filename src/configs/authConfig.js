@@ -10,17 +10,17 @@
 //   }
 // };
 
-export const msalConfig = {
-  auth: {
-    clientId: "13b51e74-e98f-4a39-a119-444cf0dd87da",
-    authority: "https://login.microsoftonline.com/834b7c70-3687-4751-aa2e-ef3bed9f9d25", // This is a URL (e.g. https://login.microsoftonline.com/{your tenant ID})
-    redirectUri: "http://localhost:3000/login",
-  },
-  cache: {
-    cacheLocation: "localStorage", // This configures where your cache will be stored
-    storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
-  }
-};
+// export const msalConfig = {
+//   auth: {
+//     clientId: "13b51e74-e98f-4a39-a119-444cf0dd87da",
+//     authority: "https://login.microsoftonline.com/834b7c70-3687-4751-aa2e-ef3bed9f9d25", // This is a URL (e.g. https://login.microsoftonline.com/{your tenant ID})
+//     redirectUri: "http://localhost:3000/login",
+//   },
+//   cache: {
+//     cacheLocation: "localStorage", // This configures where your cache will be stored
+//     storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
+//   }
+// };
 
 // export const msalConfig = {
 //   auth: {
@@ -35,17 +35,17 @@ export const msalConfig = {
 // };
 
 
-// export const msalConfig = {
-//   auth: {
-//     clientId: "f22d5fc7-ad7c-49b6-baee-599522c1a6f7",
-//     authority: "https://login.microsoftonline.com/834b7c70-3687-4751-aa2e-ef3bed9f9d25", // This is a URL (e.g. https://login.microsoftonline.com/{your tenant ID})
-//     redirectUri: "https://tradedoc.bioseta.com.br/login",
-//   },
-//   cache: {
-//     cacheLocation: "localStorage", // This configures where your cache will be stored
-//     storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
-//   }
-// };
+export const msalConfig = {
+  auth: {
+    clientId: "f22d5fc7-ad7c-49b6-baee-599522c1a6f7",
+    authority: "https://login.microsoftonline.com/834b7c70-3687-4751-aa2e-ef3bed9f9d25", // This is a URL (e.g. https://login.microsoftonline.com/{your tenant ID})
+    redirectUri: "https://tradedoc.bioseta.com.br/login",
+  },
+  cache: {
+    cacheLocation: "localStorage", // This configures where your cache will be stored
+    storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
+  }
+};
   
   // Add scopes here for ID token to be used at Microsoft identity platform endpoints.
   export const loginRequest = {
