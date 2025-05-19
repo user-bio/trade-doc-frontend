@@ -27,7 +27,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import isAzure from "../../../components/isAzure";
 import { dataPTBR } from "../../../services/Funcoes";
 import { getToken } from "../../../services/Auth";
-import { httpRequest } from "../../../services/Api";
+import { BASE_URL, httpRequest } from "../../../services/Api";
 
 const EnviosDetalhe = () => {
   isAzure();
@@ -612,7 +612,7 @@ const EnviosDetalhe = () => {
                                                     (log, logPosition) => (
                                                       <div key={logPosition}>
                                                         <a
-                                                          href={`https://app-homologacao-e9habgh6dkb8hgh4.brazilsouth-01.azurewebsites.net/api/v1/log/${log.arquivo}`}
+                                                          href={`${BASE_URL}log/${log.arquivo}`}
                                                           target="_blank"
                                                           rel="noopener noreferrer"
                                                         >
